@@ -77,7 +77,7 @@
         "colors": "css"
       }
     ],
-    "workbench.activityBar.location": "default",
+    "workbench.activityBar.location": "hidden",
     "pdf-preview.default.sidebar": false
   }
   
