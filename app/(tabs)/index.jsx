@@ -125,9 +125,10 @@ const styles = StyleSheet.create({
   },
 
   userNameHeader: {
-    padding: 10,
+    paddingVertical: 15,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingHorizontal: 25,
   },
   userPlantarInfo: {
     flexDirection: "row",
