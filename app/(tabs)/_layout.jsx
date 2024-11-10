@@ -14,34 +14,66 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarActiveTintColor: "#2a2a2a",
         headerStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: Colors.gray.gray200,
         },
         headerShadowVisible: false,
-        headerTintColor: "#fff",
+        headerTintColor: Colors.gray.gray500,
         tabBarStyle: {
-          backgroundColor: "#25292e",
+          // backgroundColor: "#25292e",
         },
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: "Home",
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
+          title: "홈",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
               name={focused ? "home-sharp" : "home-outline"}
-              size={30}
+              color={color}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="index"
         options={{
-          title: "Explore",
+          title: "내 발 정보",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "person-sharp" : "person-outline"}
+              size={30}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        options={{
+          href: null,
+        }}
+        name="shoes"
+      />
+      <Tabs.Screen
+        name="captureFootSize"
+        options={{
+          title: "발 사이즈 측정",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+              name={focused ? "footsteps-sharp" : "footsteps-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="measurePressure"
+        options={{
+          title: "발 압력 측정",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "footsteps-sharp" : "footsteps-outline"}
               color={color}
             />
           ),
