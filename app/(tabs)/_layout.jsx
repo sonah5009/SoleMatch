@@ -55,9 +55,9 @@ export default function TabsLayout() {
         name="shoes"
       />
       <Tabs.Screen
-        name="captureFootSize"
+        name="measurePressure"
         options={{
-          title: "발 사이즈 측정",
+          title: "발 압력 측정",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "footsteps-sharp" : "footsteps-outline"}
@@ -66,11 +66,10 @@ export default function TabsLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
-        name="measurePressure"
+        name="captureFootSize"
         options={{
-          title: "발 압력 측정",
+          title: "발 사이즈 측정",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "footsteps-sharp" : "footsteps-outline"}
