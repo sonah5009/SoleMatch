@@ -78,6 +78,7 @@
       }
     ],
     "workbench.activityBar.location": "hidden",
-    "pdf-preview.default.sidebar": false
+    "pdf-preview.default.sidebar": false,
+    "cmake.sourceDirectory": "/Users/choesuna/sonah-git/SoleMatch/node_modules/react-native/ReactCommon/jserrorhandler"
   }
   

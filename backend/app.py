@@ -1,12 +1,25 @@
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import json
 import os
 import sqlite3
+from measure import measure_pressure, save_measurement_image
 
 app = Flask(__name__)
 CORS(app)
-UPLOAD_FOLDER = './uploads'
+
+# Define the base paths for different environments
+PRODUCTION_PATH = '/home/sonah5009/mysite'
+DEVELOPMENT_PATH = '/Users/choesuna/sonah-git/SoleMatch/backend'
+IS_PRODUCTION = os.getenv("FLASK_ENV") == "production"
+
+BASE_PATH = PRODUCTION_PATH if IS_PRODUCTION else DEVELOPMENT_PATH
+UPLOAD_FOLDER = os.path.join(BASE_PATH, "uploads")
+
+# Set the upload and base paths in app config
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['BASE_PATH'] = BASE_PATH
 
 @app.route('/')
 def hello_world():
@@ -14,7 +27,7 @@ def hello_world():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    print("Request for file:", filename)  # 파일 요청 로그 추가
+    print("Request for file:", filename)  # Log file request
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/upload', methods=['POST'])
@@ -33,7 +46,8 @@ def upload_file():
 
 # Function to add user to the database
 def add_user_to_db(user_name):
-    connection = sqlite3.connect('/Users/choesuna/sonah-git/SoleMatch/backend/user_data.db')
+    db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
+    connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
     cursor.execute('INSERT INTO users (userName) VALUES (?)', (user_name,))
     user_id = cursor.lastrowid
@@ -56,6 +70,31 @@ def register_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/pressure', methods=['POST'])
+def start_measurement():
+    try:
+        data = request.json
+        user_id = data.get("userId")
+
+        if not user_id:
+            return jsonify({"success": False, "error": "User ID not provided"}), 400
+
+        # Perform the pressure measurement
+        pressure_data = measure_pressure()
+
+        # Save the measurement image
+        image_path = save_measurement_image(user_id)
+
+        # Save pressure data and image path in JSON format
+        json_path = os.path.join(app.config['BASE_PATH'], "pressure", "pressure_data.json")
+        with open(json_path, "w") as f:
+            json.dump({"pressure_data": pressure_data, "image_path": image_path}, f)
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "error": str(e)})
+
 if __name__ == '__main__':
-    # app.run(debug=True)
     app.run(debug=True, host='0.0.0.1', port=5000)
+    # app.run(debug=not IS_PRODUCTION, host='0.0.0.0', port=5000)
