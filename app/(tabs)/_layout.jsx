@@ -26,6 +26,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
+          // href: null,
           title: "홈",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
@@ -39,6 +40,18 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "내 발 정보",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "person-sharp" : "person-outline"}
+              size={30}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="userInput"
+        options={{
+          title: "유저 정보",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "person-sharp" : "person-outline"}
