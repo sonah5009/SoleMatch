@@ -36,7 +36,8 @@ export default function index() {
       console.log("storedUserId", storedUserId);
     };
     fetchUserId();
-  }, [navigation]);
+  });
+  // }, [navigation]);
 
   return (
     <View style={styles.container}>
