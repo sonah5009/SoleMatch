@@ -26,7 +26,8 @@ const WINDOW_WIDTH = Dimensions.get("window").width;
 
 export default function captureFootSize() {
   const [imageURI, setImageURI] = useState(null);
-  const [isLeftSaved, setIsLeftSaved] = useState(false);
+  const [leftfeet, setLeftfeet] = useState(false);
+  const [rightfeet, setRightfeet] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
 
@@ -41,6 +42,11 @@ export default function captureFootSize() {
   const sendImageToServer = async (photo) => {
     console.log(typeof photo);
     console.log(photo);
+    if(!leftfeet) {
+      setLeftfeet(true);
+    } else {
+      setRightfeet(true);
+    }
   
     // Remove the prefix (e.g., "data:image/png;base64,")
     const base64String = photo.replace(/^data:image\/\w+;base64,/, "");
@@ -64,6 +70,7 @@ export default function captureFootSize() {
         },
       });
       console.log(res.data);
+      setImageURI(null);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -91,7 +98,11 @@ export default function captureFootSize() {
     <View style={styles.container}>
       {!imageURI ? (
         <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
+          <Text style={styles.instructions}>
+              {leftfeet ? "오른쪽 발을 찍어주세요." : "왼쪽 발을 찍어주세요."}
+            </Text>
           <View style={styles.buttonContainer}>
+            
             <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
               <MaterialIcons name="camera" size={50} color="white" />
             </TouchableOpacity>
@@ -122,6 +133,13 @@ export default function captureFootSize() {
 }
 
 const styles = StyleSheet.create({
+  instructions: {
+    justifyContent: "center",
+    alignSelf: "center",
+    textAlign: "center",
+    color: "green",
+    fontSize: 30
+  },
   container: {
     flex: 1,
   },
