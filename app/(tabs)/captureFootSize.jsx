@@ -1,3 +1,4 @@
+//TODO 파일 저장 위치 변경 필요 (현재는 그냥 로컬 백엔드 폴더 내)
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -8,6 +9,7 @@ import {
   StyleSheet,
   Dimensions,
   Button,
+  Platform
 } from "react-native";
 import {
   Camera,
@@ -15,13 +17,16 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons"; // 아이콘을 위해 추가
+import axios from 'axios';
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const WINDOW_WIDTH = Dimensions.get("window").width;
 
 export default function captureFootSize() {
   const [imageURI, setImageURI] = useState(null);
+  const [isLeftSaved, setIsLeftSaved] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
 
@@ -29,44 +34,43 @@ export default function captureFootSize() {
     if (cameraRef.current) {
       const photo = await cameraRef.current?.takePictureAsync();
       setImageURI(photo.uri);
-      await sendImageToServer(photo);
+      console.log("HI")
     }
   };
 
   const sendImageToServer = async (photo) => {
-    // photo: {height, uri, width}
+    console.log(typeof photo);
+    console.log(photo);
+  
+    // Remove the prefix (e.g., "data:image/png;base64,")
+    const base64String = photo.replace(/^data:image\/\w+;base64,/, "");
+    // Convert the base64 string to a binary data buffer
+    const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/jpeg" }); // You can adjust the MIME type if needed
+  
     const formData = new FormData();
-    const host = "https://sonah5009.pythonanywhere.com";
-    // const host = "http://192.168.0.16:5000";
-
-    const imageFile = {
-      uri: photo.uri,
-      type: "image/jpeg",
-      name: photo.uri.split("/").pop(),
-    };
-    formData.append("file", imageFile);
-
+    formData.append("file", blob); // The third parameter specifies the filename
+    formData.append("fileName", "work.png"); // The third parameter specifies the filename
+  
     try {
-      const response = await fetch(`${host}/upload`, {
-        method: "POST",
+      const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        body: formData,
       });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        setImageURI(`${host}/uploads/${responseData.filename}`);
-        Alert.alert("Image Processed", "Your foot size has been calculated.");
-      } else {
-        throw new Error("Failed to upload image");
-      }
+      console.log(res.data);
     } catch (error) {
-      console.error("Upload failed", error);
-      Alert.alert("Upload failed", "Unable to upload image.");
+      console.error("Error uploading image:", error);
     }
   };
+  
+
+  
 
   if (!permission) {
     return <View />;
@@ -96,12 +100,21 @@ export default function captureFootSize() {
       ) : (
         <View style={styles.previewContainer}>
           <Image source={{ uri: imageURI }} style={styles.preview} />
-          <TouchableOpacity
-            style={styles.retakeButton}
-            onPress={() => setImageURI(null)}
-          >
-            <Text style={styles.retakeText}>Retake</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.retakeButton}
+              onPress={() => setImageURI(null)}
+            >
+              <Text style={styles.retakeText}>Retake</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.retakeButton}
+              onPress={() => sendImageToServer(imageURI)}
+            >
+              <Text style={styles.confirmText}>Confirm</Text>
+            </TouchableOpacity>
+
+          </View>
         </View>
       )}
     </View>
@@ -145,14 +158,17 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   retakeButton: {
-    position: "absolute",
-    bottom: 50,
     backgroundColor: "#404040",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
+    margin: 3
   },
   retakeText: {
+    color: "white",
+    fontSize: 16,
+  },
+  confirmText: {
     color: "white",
     fontSize: 16,
   },
