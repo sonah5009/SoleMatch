@@ -1,50 +1,145 @@
-# Welcome to your Expo app 👋
+# SoleMatch
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Soul Mate, Sole Match**  
+발의 특성과 스타일을 매칭하여 편안하고 이상적인 신발을 추천해주는 웹앱
 
-## Get started
+---
 
-1. Install dependencies
+## 📂 Project Main Structure
+
+```markdown
+.
+├── app
+│ ├── (tabs)
+│ │ ├── \_layout.jsx: Layout for the tab pages
+│ │ ├── captureFootSize.jsx: Capture foot size functionality
+│ │ ├── index.jsx: Landing page
+│ │ ├── measurePressure.jsx: Measure plantar pressure
+│ │ ├── shoes.jsx: Shoe recommendations
+│ │ └── userInput.jsx: User input page
+│ ├── +not-found.tsx: 404 not found page
+│ └── \_layout.jsx: Main layout for the app
+├── app.json: Expo configuration file
+├── assets: App assets (images, fonts, etc.)
+├── backend
+│ ├── app.py: Main backend server logic
+│ ├── db_setup.py: Database setup script
+│ ├── measure.py: Pressure measurement logic
+│ ├── user_data.db: SQLite database for user data
+│ └── pressure: Pressure analysis data and images
+├── constants
+│ └── Colors.ts: App-wide color constants
+```
+
+---
+
+## 🛠️ Features
+
+- **Foot Measurement:** Measure foot size and plantar pressure using arduino pressure sensor & camera inputs.
+- **Shoe Recommendation:** Get personalized shoe recommendations based on foot pressure and size.
+- **User-Friendly Interface:** Intuitive UI with React Native and Expo.
+- **Backend Support:** A Python-based backend server for data analysis and storage. (pythonanywhere)
+
+---
+
+## 🎨 Color Scheme
+
+The app uses a consistent and clean color scheme defined in `constants/Colors.ts`.
+Here are the primary colors used:
+
+- **Green**
+  - `green100`: `#013D2A` (Primary green)
+  - `green200`: `#01624D`
+- **Gray**
+  - `gray100`: `#FAFAFA` (Background)
+  - `gray200`: `#F5F5F5`
+  - `gray300`: `#9E9E9E`
+  - `gray400`: `#666`
+  - `gray500`: `#424242`
+
+---
+
+## 🚀 How to Run the App
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the Expo server:
 
    ```bash
-    npx expo start
+   npx expo start -c
    ```
 
-In the output, you'll find options to open the app in a
+4. Open the app in the Expo Go app (available on iOS and Android) or in an emulator.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📚 Backend Setup
 
-## Get a fresh project
+The backend is implemented in Python and uses Flask. To set up and run the backend:
 
-When you're ready, run:
+1. Navigate to the `backend` directory:
 
-```bash
-npm run reset-project
+   ```bash
+   cd backend
+   ```
+
+2. Install required dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the server:
+   ```bash
+   python app.py
+   ```
+   or
+   ```bash
+   flask run
+   ```
+
+The server will run on `http://127.0.0.1:5000` by default.
+
+---
+
+## 🧩 Technologies Used
+
+### Frontend
+
+- **React Native**
+- **Expo**
+- **JavaScript**
+
+### Backend
+
+- **Python**
+- **Flask**
+- **SQLite**
+- **OpenCV**
+
+---
+
+## 🤝 Contributors
+
+- **Lead developer**: Sun-a Choe (최선아)
+- **SoleMatch Team**: 김채리, 권주원, 배준홍 (Chae-ri Kim, Joo-won Kwon, Jun-hong Bae)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
+
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+To be updated later
+```
