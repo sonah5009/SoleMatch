@@ -1,4 +1,3 @@
-//TODO 파일 저장 위치 변경 필요 (현재는 그냥 로컬 백엔드 폴더 내)
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -9,6 +8,7 @@ import {
   StyleSheet,
   Dimensions,
   Button,
+  Picker,
   Platform
 } from "react-native";
 import {
@@ -24,12 +24,30 @@ import axios from 'axios';
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const WINDOW_WIDTH = Dimensions.get("window").width;
 
+
 export default function captureFootSize() {
   const [imageURI, setImageURI] = useState(null);
   const [leftfeet, setLeftfeet] = useState(false);
   const [rightfeet, setRightfeet] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const [users, setUsers] = useState([]); // users state updated
+  const [selectedUser, setSelectedUser] = useState(null);
   const cameraRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        console.log("Fetching users...");
+        const response = await axios.get('http://127.0.0.1:5000/users');
+        setUsers(response.data); // Updated to use response data directly
+        setSelectedUser(response.data[0]?.userName || null); // Set the first user or null
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const takeImage = async () => {
     if (cameraRef.current) {
@@ -42,11 +60,16 @@ export default function captureFootSize() {
   const sendImageToServer = async (photo) => {
     console.log(typeof photo);
     console.log(photo);
+    let filename;
     if(!leftfeet) {
       setLeftfeet(true);
+      setRightfeet(false);
+      filename=selectedUser+"_left.jpg";
     } else {
       setRightfeet(true);
+      filename=selectedUser+"_right.jpg";
     }
+
   
     // Remove the prefix (e.g., "data:image/png;base64,")
     const base64String = photo.replace(/^data:image\/\w+;base64,/, "");
@@ -61,8 +84,14 @@ export default function captureFootSize() {
   
     const formData = new FormData();
     formData.append("file", blob); // The third parameter specifies the filename
-    formData.append("fileName", "work.png"); // The third parameter specifies the filename
-  
+    formData.append("fileName", filename); // The third parameter specifies the filename
+    formData.append("user", selectedUser); // The third parameter specifies the filename
+    
+    setImageURI(null);
+    if(rightfeet) {
+      setLeftfeet(false);
+      setRightfeet(false);
+    }
     try {
       const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
         headers: {
@@ -70,14 +99,11 @@ export default function captureFootSize() {
         },
       });
       console.log(res.data);
-      setImageURI(null);
+      
     } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
-  
-
-  
 
   if (!permission) {
     return <View />;
@@ -96,6 +122,16 @@ export default function captureFootSize() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.label}>Select User:</Text>
+      <Picker
+        selectedValue={selectedUser}
+        onValueChange={(itemValue) => setSelectedUser(itemValue)}
+        style={styles.picker}
+      >
+        {users.map((user, index) => (
+          <Picker.Item key={index} label={user.userName} value={user.userName} />
+        ))}
+      </Picker>
       {!imageURI ? (
         <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
           <Text style={styles.instructions}>

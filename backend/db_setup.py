@@ -14,7 +14,9 @@ def create_database():
             leftFootSize REAL,
             rightFootSize REAL,
             leftWidth REAL,
-            rightWidth REAL
+            rightWidth REAL,
+            feetLevel STRING,
+            createdAt DATE DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
