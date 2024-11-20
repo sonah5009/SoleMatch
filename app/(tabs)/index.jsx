@@ -1,10 +1,9 @@
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { Link, useNavigation } from "expo-router";
+import { Link } from "expo-router";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useIsFocused } from "@react-navigation/native";
 
 const window = Dimensions.get("window");
 const blurhash =
@@ -23,7 +22,6 @@ const blurhash =
 // clearAsyncStorage();
 
 export default function index() {
-  const navigation = useNavigation();
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
 
@@ -37,7 +35,6 @@ export default function index() {
     };
     fetchUserId();
   });
-  // }, [navigation]);
 
   return (
     <View style={styles.container}>
