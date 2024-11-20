@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Dimensions,
   Button,
-  Platform
+  Platform,
 } from "react-native";
 import {
   Camera,
@@ -19,7 +19,7 @@ import {
 } from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons"; // 아이콘을 위해 추가
-import axios from 'axios';
+import axios from "axios";
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const WINDOW_WIDTH = Dimensions.get("window").width;
@@ -34,14 +34,14 @@ export default function captureFootSize() {
     if (cameraRef.current) {
       const photo = await cameraRef.current?.takePictureAsync();
       setImageURI(photo.uri);
-      console.log("HI")
+      console.log("HI");
     }
   };
 
   const sendImageToServer = async (photo) => {
     console.log(typeof photo);
     console.log(photo);
-  
+
     // Remove the prefix (e.g., "data:image/png;base64,")
     const base64String = photo.replace(/^data:image\/\w+;base64,/, "");
     // Convert the base64 string to a binary data buffer
@@ -52,25 +52,24 @@ export default function captureFootSize() {
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: "image/jpeg" }); // You can adjust the MIME type if needed
-  
+
     const formData = new FormData();
     formData.append("file", blob); // The third parameter specifies the filename
     formData.append("fileName", "work.png"); // The third parameter specifies the filename
-  
+
     try {
-      const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
+      const res = await fetch("http://127.0.0.1:5000/analyze_size", {
+        method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        body: formData,
       });
       console.log(res.data);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
-  
-
-  
 
   if (!permission) {
     return <View />;
@@ -113,7 +112,6 @@ export default function captureFootSize() {
             >
               <Text style={styles.confirmText}>Confirm</Text>
             </TouchableOpacity>
-
           </View>
         </View>
       )}
@@ -162,7 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
-    margin: 3
+    margin: 3,
   },
   retakeText: {
     color: "white",
