@@ -61,8 +61,7 @@ export default function captureFootSize() {
     }
   };
   const sendImageToServer = async (photo) => {
-    console.log(typeof photo);
-    console.log(photo);
+    
     let filename;
     if(!leftfeet) {
       setLeftfeet(true);
@@ -96,14 +95,16 @@ export default function captureFootSize() {
     }
 
     try {
+      console.log("hii");
       const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(res.data);
+      console.log("hii");
 
       if (res.data && res.data.image) {
+        console.log("HIIIIII");
         // If it's a base64 image string
         if(!leftResult) {
           setLeftResult(`data:image/png;base64,${res.data.image}`);
@@ -115,7 +116,9 @@ export default function captureFootSize() {
           setRightLength(res.data.length);
 
         }
+        console.log("HIIIIII");
       }
+
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -138,23 +141,26 @@ export default function captureFootSize() {
   return (
     <View style={styles.container}>
       {leftResult && rightResult && (<View style={styles.imageContainer}>
+        <View style={styles.middleContainer}>
+          <Image source={{ uri: leftResult }} style={styles.camera2} />
 
-        <Image source={{ uri: leftResult }} style={styles.camera2} />
+          <Image
+            source={{ uri: rightResult }}
+            style={styles.camera2} // Adjust dimensions as needed
 
-        <Image
-          source={{ uri: rightResult }}
-          style={styles.camera2} // Adjust dimensions as needed
-
-        />
-        <View style={styles.imageText}>
-          <Text>Left Foot</Text>
-          <Text>Width: {leftWidth} mm</Text>
-          <Text>Length: {leftLength} mm</Text>
+          />
         </View>
-        <View style={styles.imageTextRight}>
-          <Text>Right Foot</Text>
-          <Text>Width: {rightWidth} mm</Text>
-          <Text>Length: {rightLength} mm</Text>
+        <View style={styles.middleContainer}>
+          <View style={styles.imageText}>
+            <Text>Left Foot</Text>
+            <Text>Width: {leftWidth} mm</Text>
+            <Text>Length: {leftLength} mm</Text>
+          </View>
+          <View style={styles.imageText}>
+            <Text>Right Foot</Text>
+            <Text>Width: {rightWidth} mm</Text>
+            <Text>Length: {rightLength} mm</Text>
+          </View>
         </View>
 
       </View>)}
@@ -208,20 +214,19 @@ export default function captureFootSize() {
 
 const styles = StyleSheet.create({
   imageText: {
-    position: 'absolute',
-    bottom: 50,
-    left: 50,
-    color: 'white'
-  },
-  imageTextRight: {
-    position: 'absolute',
-    bottom: 50,
-    right: 50,
-    color: 'white'
+    flex: 1,
+    color: 'white',
+    justifyContent: 'flex-end',
+    backgroundColor: '#'
   },
   imageContainer: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'column'
+  },
+  middleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flex: 1
   },
   instructions: {
     justifyContent: "center",

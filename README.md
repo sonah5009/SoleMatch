@@ -131,8 +131,9 @@ The server will run on `http://127.0.0.1:5000` by default.
 
 ## 🤝 Contributors
 
-- **Lead developer**: Sun-a Choe (최선아)
-- **SoleMatch Team**: 김채리, 권주원, 배준홍 (Chae-ri Kim, Joo-won Kwon, Jun-hong Bae)
+- **Team Lead**: Sun-a Choe (최선아) - App Design & Development, Sole Pressure Distribution Visualization
+- **Software Developer**: Chaeri Kim (김채리) - App Features & Relative Foot Size Measurement Development
+- **Hardware Analyst**: Ju-won Kwon (권주원), Jun-hong Bae (배준홍) - Sole Pressure Sensor & Arduino Connection
 
 ---
 
