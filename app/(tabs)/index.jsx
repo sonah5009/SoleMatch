@@ -1,15 +1,44 @@
-// import Button from "@/components/Button";
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { Link } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
+import { Link, useNavigation } from "expo-router";
+import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 const window = Dimensions.get("window");
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
-export default function Index() {
+// const clearAsyncStorage = async () => {
+//   try {
+//     await AsyncStorage.clear();
+//     console.log("AsyncStorage has been cleared!");
+//   } catch (error) {
+//     console.error("Error clearing AsyncStorage:", error);
+//   }
+// };
+
+// // Call this function to clear all stored data
+// clearAsyncStorage();
+
+export default function index() {
+  const navigation = useNavigation();
+  const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      console.log("index page rendered");
+      setUserId(storedUserId);
+      setIsLoading(false); // 로딩 완료
+      console.log("storedUserId", storedUserId);
+    };
+    fetchUserId();
+  });
+  // }, [navigation]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -24,7 +53,24 @@ export default function Index() {
 
       <View style={styles.main}>
         {/* Button */}
-        <Link href="measurePressure">
+
+        <Link href="userInput" replace={true}>
+          <View style={styles.buttonContainer}>
+            <View>
+              <Text style={styles.buttonTitle}>유저 등록 하러가기</Text>
+              <Text style={styles.buttonDescription}>
+                정보 등록을 하지 않았다면 먼저해주세요.{"\n"}
+              </Text>
+            </View>
+            <Text>{">"}</Text>
+          </View>
+        </Link>
+
+        <Link
+          href="measurePressure"
+          style={{ opacity: userId ? 1 : 0.5 }} // Dim button if disabled
+          disabled={userId == null}
+        >
           <View style={styles.buttonContainer}>
             <View>
               <Text style={styles.buttonTitle}>
@@ -38,7 +84,11 @@ export default function Index() {
           </View>
         </Link>
 
-        <Link href="captureFootSize">
+        <Link
+          href="captureFootSize"
+          style={{ opacity: userId ? 1 : 0.5 }}
+          disabled={userId == null}
+        >
           <View style={styles.buttonContainer}>
             <View>
               <Text style={styles.buttonTitle}>발 사이즈만 측정하러가기</Text>
@@ -95,35 +145,28 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-
-    marginTop: Dimensions.get("window").width > 500 ? 15 : 10,
-    marginHorizontal: Dimensions.get("window").width > 500 ? 350 : 20,
-
-    opacity: 0.8,
+    marginTop: window.width > 500 ? 15 : 10,
+    marginHorizontal: window.width > 500 ? 350 : 20,
+    // opacity: 0.8,
   },
   header: {
     borderRadius: 5,
-    paddingHorizontal: Dimensions.get("window").width > 500 ? 30 : 20,
-    paddingVertical: Dimensions.get("window").width > 500 ? 50 : 30,
+    paddingHorizontal: window.width > 500 ? 30 : 20,
+    paddingVertical: window.width > 500 ? 50 : 30,
     gap: 10,
-
     backgroundColor: "#fafafa",
   },
   main: {
-    // paddingHorizontal: 30,
     marginTop: 20,
     gap: 10,
   },
-
   footer: {
     width: "100%",
     marginTop: 20,
     backgroundColor: "#fafafa",
-
     borderRadius: 5,
     paddingBottom: 15,
   },
-
   userNameHeader: {
     paddingVertical: 15,
     flexDirection: "row",
@@ -153,27 +196,22 @@ const styles = StyleSheet.create({
   discription: {
     fontSize: 16,
   },
-
   buttonContainer: {
-    paddingHorizontal: Dimensions.get("window").width > 500 ? 30 : 18,
+    paddingHorizontal: window.width > 500 ? 30 : 18,
     paddingVertical: 20,
     width: "100%",
-
     flexDirection: "row",
     columnGap: 10,
     alignItems: "center",
     justifyContent: "space-between",
     alignContent: "stretch",
-
     borderRadius: 5,
     borderColor: "#333",
-
     backgroundColor: "#fafafa",
   },
   buttonTitle: {
-    fontSize: Dimensions.get("window").width > 500 ? 19 : 18,
+    fontSize: window.width > 500 ? 19 : 18,
     fontWeight: "bold",
-
     opacity: 0.8,
   },
   buttonDescription: {

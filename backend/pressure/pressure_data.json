@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"pressure_data": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170], "image_path": "/Users/choesuna/sonah-git/SoleMatch/backend/pressure/pressure_48.png"}
+=======
+{"pressure_data": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170], "image_path": "/Users/choesuna/sonah-git/SoleMatch/backend/pressure/pressure_52.png"}
+>>>>>>> 4df43baac2ad251a4ccb7ecc1bfff6c815d3ff65
