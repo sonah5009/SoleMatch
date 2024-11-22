@@ -1,3 +1,4 @@
+// TODO: userId 전역 or 지역 변수 고민
 import React, { useState, useEffect } from "react";
 import { Platform, StyleSheet, Dimensions } from "react-native";
 import {
@@ -24,18 +25,20 @@ const getUserId = async () => {
     return await AsyncStorage.getItem("userId");
   }
 };
+// const userId = getUserId;
 
 export default function measurePressure() {
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [guideShow, setGuideShow] = useState(true);
   const [measurementComplete, setMeasurementComplete] = useState(false);
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const startMeasurement = async () => {
     setIsMeasuring(true);
     const userId = await getUserId();
     console.log("userId");
     console.log(userId);
+    setGuideShow(false);
 
     try {
       const response = await fetch(`${BACKEND_URL}/api/pressure`, {
@@ -63,20 +66,10 @@ export default function measurePressure() {
     }
   };
 
-  const goToSizeMeasurement = () => {
-    setGuideShow(true);
-    setIsMeasuring(false);
-    setMeasurementComplete(false);
-    navigation.navigate("captureFootSize");
-  };
-
-  const startGuide = async () => {
-    setGuideShow(false);
-  };
-
   return (
     <View style={styles.container}>
       {guideShow ? (
+        // 1. 빨간색 선 이미지 보여주고 측정 시작 버튼
         <View>
           {/* <PressureGuide /> */}
           <Image
@@ -85,7 +78,7 @@ export default function measurePressure() {
           />
           <Button
             title="빨간색선에 맞춰 편하게 서주세요"
-            onPress={startGuide}
+            onPress={startMeasurement}
           />
         </View>
       ) : (
@@ -93,27 +86,26 @@ export default function measurePressure() {
           style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
         >
           {isMeasuring ? (
-            // 백엔드에서 측정 중일때
+            // 2. 측정 중 메시지 띄우기 - 백엔드에서 계산 중 및 압력 분포 이미지 저장 중
             <View>
               <Text>Measuring pressure...</Text>
-              <ActivityIndicator size="large" color="#0000ff" />
+              {/* <ActivityIndicator size="large" color="#0000ff" /> */}
             </View>
           ) : (
+            // 3. 측정 완료 시
             <View style={{ alignItems: "center" }}>
               <Image
                 source={require("../../assets/images/shoes.jpeg")}
                 style={{ width: 300, height: 300 }}
               />
-              <Text>
-                Align yourself with the guide and press "Start Measurement".
-              </Text>
-              <Button title="Start Measurement" onPress={startMeasurement} />
-              {measurementComplete && (
-                <Button
-                  title="Measure Foot Size"
-                  onPress={goToSizeMeasurement}
-                />
-              )}
+
+              <Link href="captureFootSize">발 크기 재러가기</Link>
+              {/* <Button
+                title="발 크기 재러가기"
+                onPress={() => {
+                  navigation.navigate("captureFootSize");
+                }}
+              /> */}
             </View>
           )}
         </View>
