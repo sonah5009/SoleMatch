@@ -27,12 +27,20 @@ const WINDOW_WIDTH = Dimensions.get("window").width;
 
 export default function captureFootSize() {
   const [imageURI, setImageURI] = useState(null);
+  const [imageSrc, setImageSrc] = useState(null);
   const [leftfeet, setLeftfeet] = useState(false);
   const [rightfeet, setRightfeet] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [users, setUsers] = useState([]); // users state updated
   const [selectedUser, setSelectedUser] = useState(null);
+  const [leftResult, setLeftResult] = useState(null);
+  const [rightResult, setRightResult] = useState(null);
+  const [leftWidth, setLeftWidth] = useState(null);
+  const [leftLength, setLeftLength] = useState(null);
+  const [rightWidth, setRightWidth] = useState(null);
+  const [rightLength, setRightLength] = useState(null);
   const cameraRef = useRef(null);
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -63,7 +71,6 @@ export default function captureFootSize() {
     let filename;
     if(!leftfeet) {
       setLeftfeet(true);
-      setRightfeet(false);
       filename=selectedUser+"_left.jpg";
     } else {
       setRightfeet(true);
@@ -88,18 +95,26 @@ export default function captureFootSize() {
     formData.append("user", selectedUser); // The third parameter specifies the filename
     
     setImageURI(null);
-    if(rightfeet) {
-      setLeftfeet(false);
-      setRightfeet(false);
-    }
+    
     try {
       const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(res.data);
-      
+      if (res.data && res.data.image) {
+        // If it's a base64 image string
+        if(!leftResult) {
+          setLeftResult(`data:image/png;base64,${res.data.image}`);
+          setLeftWidth(res.data.width);
+          setLeftLength(res.data.length);
+        } else {
+          setRightResult(`data:image/png;base64,${res.data.image}`);
+          setRightWidth(res.data.width);
+          setRightLength(res.data.length);
+
+        }
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -122,6 +137,29 @@ export default function captureFootSize() {
 
   return (
     <View style={styles.container}>
+      {leftResult && rightResult && (<View style={styles.imageContainer}>
+      
+        <Image source={{ uri: leftResult }} style={styles.camera2} />
+        
+        <Image
+          source={{ uri: rightResult }}
+          style={styles.camera2} // Adjust dimensions as needed
+          
+        />
+        <View style={styles.imageText}>
+          <Text>Left Foot</Text>
+          <Text>Width: {leftWidth} mm</Text>
+          <Text>Length: {leftLength} mm</Text>
+        </View>
+        <View style={styles.imageTextRight}>
+          <Text>Right Foot</Text>
+          <Text>Width: {rightWidth} mm</Text>
+          <Text>Length: {rightLength} mm</Text>
+        </View>
+      
+      </View>)}
+
+      {!rightResult && (<View>
       <Text style={styles.label}>Select User:</Text>
       <Picker
         selectedValue={selectedUser}
@@ -164,11 +202,28 @@ export default function captureFootSize() {
           </View>
         </View>
       )}
+      </View>)}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  imageText: {
+    position: 'absolute',
+    bottom: 50,
+    left: 50,
+    color: 'white'
+  },
+  imageTextRight: {
+    position: 'absolute',
+    bottom: 50,
+    right: 50,
+    color: 'white'
+  },
+  imageContainer: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
   instructions: {
     justifyContent: "center",
     alignSelf: "center",
@@ -181,8 +236,14 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    width: "100%",
+    height: undefined,
+  },
+  camera2: {
+    flex: 1,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
+    resizeMode: 'contain',
   },
   buttonContainer: {
     flex: 1,
