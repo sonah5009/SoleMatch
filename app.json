@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SoleMatch",
-    "slug": "SoleMatch",
+    "slug": "solematch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -32,6 +32,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "3722ec95-bb78-4027-a669-4e9486a841ce"
+      }
+    },
+    "owner": "sonah5009"
   }
 }
