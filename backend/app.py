@@ -15,7 +15,21 @@ import cv2
 import base64
 
 app = Flask(__name__)
-CORS(app)
+# CORS 설정
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:8081",  # Expo 웹 미리보기
+                "http://127.0.0.1:5000",  # 로컬 Flask 테스트
+                "https://sonah5009.pythonanywhere.com",  # 실제 Flask 서버 URL
+                "exp://172.30.122.251:8081",  # Expo Go
+            ],
+            "supports_credentials": True,  # 쿠키나 인증 헤더 허용
+        }
+    },
+)
 
 # Define the base paths for different environments
 # PRODUCTION_PATH = '/home/sonah5009/mysite'
@@ -298,6 +312,7 @@ def register_user():
 
     try:
         user_id = add_user_to_db(user_name)
+        print(user_id)
         return jsonify({"userId": user_id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
