@@ -1,3 +1,4 @@
+import './reset.css';
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -165,29 +166,47 @@ export default function captureFootSize() {
 
       </View>)}
 
-      {!rightResult && (<View>
-      <Text style={styles.label}>Select User:</Text>
-      <Picker
-        selectedValue={selectedUser}
-        onValueChange={(itemValue) => setSelectedUser(itemValue)}
-        style={styles.picker}
-      >
-        {users.map((user, index) => (
-          <Picker.Item key={index} label={user.userName} value={user.userName} />
-        ))}
-      </Picker>
+      {!rightResult && (<View style={styles.camContainer}>
+      <View style={styles.pickerset}>
+        <Text style={styles.label}>사용자 선택</Text>
+        <Picker
+          selectedValue={selectedUser}
+          onValueChange={(itemValue) => setSelectedUser(itemValue)}
+          style={styles.picker}
+        >
+          {users.map((user, index) => (
+            <Picker.Item key={index} label={user.userName} value={user.userName} />
+          ))}
+        </Picker>
+      </View>
       {!imageURI ? (
-        <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
-          <Text style={styles.instructions}>
-              {leftfeet ? "오른쪽 발을 찍어주세요." : "왼쪽 발을 찍어주세요."}
-            </Text>
-          <View style={styles.buttonContainer}>
-            
-            <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
-              <MaterialIcons name="camera" size={50} color="white" />
-            </TouchableOpacity>
+        <div  className="page-reset">
+          <View>
+            <div className="page-reset-detail">
+              <Text style={styles.instructions}>
+                {leftfeet ? "오른쪽 발을 찍어주세요." : "왼쪽 발을 찍어주세요."}
+              </Text>
+            </div>
           </View>
-        </CameraView>
+          <CameraView
+            ref={cameraRef}
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            ratio="16:9">
+              <div className="camera-button">
+                <View style={styles.buttonContainer}>
+                
+                  <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
+                    <MaterialIcons name="camera" size={50} color="white" />
+                  </TouchableOpacity>
+                
+                </View>
+              </div>
+          </CameraView>
+        </div>
       ) : (
         <View style={styles.previewContainer}>
           <Image source={{ uri: imageURI }} style={styles.preview} />
@@ -213,6 +232,57 @@ export default function captureFootSize() {
 }
 
 const styles = StyleSheet.create({
+  pickerset: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "30%",
+    alignSelf: "center",
+    marginBottom: 15,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: '#f7f9fc',
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#d1d9e6",
+  },
+  picker: {
+    flex: 1,
+    height: 35,
+    marginLeft: 8,
+    fontSize: 16,
+    color: "#333",
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#2c3e50",
+    marginRight: 5,
+  },  
+  buttonContainer: {
+    marginHorizontal: 0,
+    position: "absolute",
+// Position 10% from the bottom
+    right: "45%",
+    alignSelf: "center", // Center horizontally
+  },
+  captureButton: {
+    borderRadius: 35,
+    padding: 5,
+    backgroundColor: "#404040",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  camContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   imageText: {
     flex: 1,
     color: 'white',
@@ -229,6 +299,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   instructions: {
+    position: 'absolute',
     justifyContent: "center",
     alignSelf: "center",
     textAlign: "center",
@@ -240,30 +311,14 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-    width: "100%",
-    height: undefined,
+    height: '100%',
+    
   },
   camera2: {
     flex: 1,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
     resizeMode: 'contain',
-  },
-  buttonContainer: {
-    flex: 1,
-    backgroundColor: "transparent",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "flex-end",
-    marginBottom: 40,
-  },
-  captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: "#404040",
-    justifyContent: "center",
-    alignItems: "center",
   },
   previewContainer: {
     flex: 1,
