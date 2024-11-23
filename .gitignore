@@ -11,6 +11,9 @@ npm-debug.*
 web-build/
 app-example
 backend/__pycache__
+backend/uploads/*
+backend/analyzed/*
+backend/user_data.db
 
 # macOS
 .DS_Store
