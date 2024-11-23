@@ -9,9 +9,8 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigationContainerRef } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PressureGuide from "../../components/PressureGuide";
 
 const BACKEND_URL = "http://127.0.0.1:5000";
 // const BACKEND_URL = "http://192.168.0.16:5000";
@@ -28,6 +27,8 @@ const getUserId = async () => {
 // const userId = getUserId;
 
 export default function measurePressure() {
+  const navigationRef = useNavigationContainerRef();
+
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [guideShow, setGuideShow] = useState(true);
   const [measurementComplete, setMeasurementComplete] = useState(false);
@@ -49,9 +50,9 @@ export default function measurePressure() {
         body: JSON.stringify({ userId }), // Include userId in the request
       });
       const result = await response.json(); // True or False
+      setMeasurementComplete(true);
 
-      if (result.success) {
-        setMeasurementComplete(true);
+      if (result.success && navigationRef.isReady()) {
         Alert.alert(
           "Measurement Complete",
           "Pressure data recorded successfully."
@@ -62,6 +63,7 @@ export default function measurePressure() {
     } catch (error) {
       Alert.alert("Error", "Could not connect to the backend.");
     } finally {
+      // navigationRef.navigate("captureFootSize");
       setIsMeasuring(false);
     }
   };
@@ -71,7 +73,6 @@ export default function measurePressure() {
       {guideShow ? (
         // 1. 빨간색 선 이미지 보여주고 측정 시작 버튼
         <View>
-          {/* <PressureGuide /> */}
           <Image
             source={require("../../assets/images/pressure-both.png")}
             style={{ width: "auto" }}
@@ -94,18 +95,27 @@ export default function measurePressure() {
           ) : (
             // 3. 측정 완료 시
             <View style={{ alignItems: "center" }}>
-              <Image
+              {/* <Image
                 source={require("../../assets/images/shoes.jpeg")}
                 style={{ width: 300, height: 300 }}
-              />
-
-              <Link href="captureFootSize">발 크기 재러가기</Link>
-              {/* <Button
-                title="발 크기 재러가기"
-                onPress={() => {
-                  navigation.navigate("captureFootSize");
-                }}
               /> */}
+              {measurementComplete ? (
+                <View>
+                  <Text>측정 완료</Text>
+                  <Button
+                    title="발 크기 측정하러가기"
+                    onPress={() => {
+                      if (navigationRef.isReady()) {
+                      }
+                      navigationRef.isReady();
+                      navigationRef.navigate("captureFootSize");
+                      // setIsMeasuring(false);
+                    }}
+                  />
+                </View>
+              ) : (
+                <Text>에이 설마</Text>
+              )}
             </View>
           )}
         </View>
