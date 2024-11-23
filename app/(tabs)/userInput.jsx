@@ -1,7 +1,7 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,19 +9,15 @@ import {
   Alert,
   StyleSheet,
   Dimensions,
+  Button,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 
 const BACKEND_LOCAL_URL = "http://127.0.0.1:5000";
-// const BACKEND_LOCAL_URL = "http://192.168.0.16:5000";
-
 const window = Dimensions.get("window");
 
 export default function userInput() {
   const [userName, setUserName] = useState("");
-  const navigation = useNavigation();
-  const [userId, setUserId] = useState(null);
 
   const handleRegister = async () => {
     try {
@@ -36,19 +32,25 @@ export default function userInput() {
       if (response.ok) {
         const data = await response.json();
         const { userId } = data;
-        setUserId(userId);
-        console.log(userId);
+        console.log("userId!: ", userId);
 
-        // Save to AsyncStorage
-        await AsyncStorage.setItem("userName", userName);
-        await AsyncStorage.setItem("userId", String(userId));
+        // Save to AsyncStorage and wait for it to complete
+        await Promise.all([
+          AsyncStorage.setItem("userName", userName),
+          AsyncStorage.setItem("userId", String(userId)),
+          console.log("async!: ", userId),
+          router.replace("/"),
+        ]);
 
-        console.log(await AsyncStorage.getItem("userId"), "userInput");
-
-        Alert.alert("Success", `User registered with ID: ${userId}`);
-
-        // Navigate to Index after registration
-        navigation.navigate("index");
+        Alert.alert("Success", `User registered with ID: ${userId}`, [
+          {
+            text: "OK",
+            onPress: () => {
+              // Only navigate after AsyncStorage operations are complete
+              router.replace("/");
+            },
+          },
+        ]);
       } else {
         Alert.alert("Error", "Failed to register user.");
       }
@@ -74,16 +76,10 @@ export default function userInput() {
         value={userName}
         onChangeText={setUserName}
       />
+
       <Link href="/" onPress={handleRegister} style={styles.buttonContainer}>
         <Text style={styles.buttonTitle}>유저 등록 하러가기</Text>
       </Link>
-      {/* <View style={styles.buttonContainer}>
-        <Link href="/" onPress={handleRegister}>
-          <View style={{ width: "100%" }}>
-            <Text style={styles.buttonTitle}>유저 등록 하러가기</Text>
-          </View>
-        </Link>
-      </View> */}
     </View>
   );
 }
