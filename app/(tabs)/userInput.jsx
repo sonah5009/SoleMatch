@@ -7,14 +7,17 @@ import CentralLayout from "@/components/CentralLayout";
 import NavigateButton from "@/components/NavigateButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BACKEND_LOCAL_URL = "http://127.0.0.1:5000";
+// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+console.log(BASE_URL);
+console.log("BASE_URL");
 
 export default function userInput() {
   const [userName, setUserName] = useState("");
 
   const handleRegister = async () => {
     try {
-      const response = await fetch(`${BACKEND_LOCAL_URL}/api/register`, {
+      const response = await fetch(`${BASE_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -29,6 +32,8 @@ export default function userInput() {
 
         // Save to AsyncStorage and wait for it to complete
         await Promise.all([
+          // localStorage.setItem("userName", userName),
+          // localStorage.setItem("userId", String(userId)),
           AsyncStorage.setItem("userName", userName),
           AsyncStorage.setItem("userId", String(userId)),
           console.log("async!: ", userId),

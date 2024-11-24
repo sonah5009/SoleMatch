@@ -6,7 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import PressureGuide from "@/components/PressureGuide";
 
 const window = Dimensions.get("window");
-const BACKEND_URL = "http://127.0.0.1:5000";
+// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
 const getUserId = async () => {
   if (Platform.OS === "web") {
@@ -25,7 +26,7 @@ export default function measurePressure() {
       const userId = await getUserId();
       console.log("User ID:", userId);
 
-      const response = await fetch(`${BACKEND_URL}/api/pressure`, {
+      const response = await fetch(`${BASE_URL}/api/pressure`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
