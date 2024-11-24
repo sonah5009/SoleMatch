@@ -38,8 +38,19 @@ export default function captureFootSize() {
   const [leftLength, setLeftLength] = useState(null);
   const [rightWidth, setRightWidth] = useState(null);
   const [rightLength, setRightLength] = useState(null);
+  const [divWidth, setDivWidth] = useState(0);
+  const [divLength, setDivLength] = useState(0);
+
   const cameraRef = useRef(null);
 
+  
+
+  const handleDivLayout = (event) => {
+    const { width, height } = event.nativeEvent.layout;
+    console.log("width: " , width)
+    setDivWidth(width);
+    setDivLength(height);
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -142,29 +153,32 @@ export default function captureFootSize() {
   return (
     <View style={styles.container}>
       {leftResult && rightResult && (<View style={styles.imageContainer}>
-        <View style={styles.middleContainer}>
-          <Image source={{ uri: leftResult }} style={styles.camera2} />
-
-          <Image
-            source={{ uri: rightResult }}
-            style={styles.camera2} // Adjust dimensions as needed
-
-          />
-        </View>
-        <View style={styles.middleContainer}>
-          <View style={styles.imageText}>
-            <Text>Left Foot</Text>
-            <Text>Width: {leftWidth} mm</Text>
-            <Text>Length: {leftLength} mm</Text>
+          {/* Images Container */}
+          <View style={styles.middleContainerFirst}>
+            <Image source={{ uri: leftResult }} style={{
+              width: '40%',
+              resizeMode: 'contain'
+            }} />
+            <Image source={{ uri: rightResult }} style={{
+              width: '40%',
+              resizeMode: 'contain'
+            }} />
           </View>
-          <View style={styles.imageText}>
-            <Text>Right Foot</Text>
-            <Text>Width: {rightWidth} mm</Text>
-            <Text>Length: {rightLength} mm</Text>
-          </View>
-        </View>
 
-      </View>)}
+          {/* Text Container with Foot Info */}
+          <View style={styles.middleContainerSecond}>
+            <View style={styles.imageText}>
+              <Text style={styles.imageTextTitle}>Left Foot</Text>
+              <Text>Width: {leftWidth} mm</Text>
+              <Text>Length: {leftLength} mm</Text>
+            </View>
+            <View style={styles.imageText}>
+              <Text style={styles.imageTextTitle}>Right Foot</Text>
+              <Text>Width: {rightWidth} mm</Text>
+              <Text>Length: {rightLength} mm</Text>
+            </View>
+          </View>
+        </View>)}
 
       {!rightResult && (<View style={styles.camContainer}>
       <View style={styles.pickerset}>
@@ -188,29 +202,39 @@ export default function captureFootSize() {
               </Text>
             </div>
           </View>
-          <CameraView
-            ref={cameraRef}
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            ratio="16:9">
-              <div className="camera-button">
-                <View style={styles.buttonContainer}>
-                
-                  <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
-                    <MaterialIcons name="camera" size={50} color="white" />
-                  </TouchableOpacity>
-                
-                </View>
-              </div>
-          </CameraView>
+          <View onLayout={handleDivLayout}>
+            <CameraView
+              ref={cameraRef}
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              
+              ratio="16:9">
+                <div className="camera-button">
+                  <View style={styles.buttonContainer}>
+                  
+                    <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
+                      <MaterialIcons name="camera" size={50} color="white" />
+                    </TouchableOpacity>
+                  
+                  </View>
+                </div>
+            </CameraView>
+          </View>
         </div>
       ) : (
         <View style={styles.previewContainer}>
-          <Image source={{ uri: imageURI }} style={styles.preview} />
-          <View style={styles.buttonContainer}>
+          <div className="taken-image">
+            <Image source={{ uri: imageURI }} style={{
+              
+              width: divWidth,
+              height: divLength,
+            }}>
+            </Image>
+          </div>
+          <View style={styles.buttonContainer2}>
             <TouchableOpacity
               style={styles.retakeButton}
               onPress={() => setImageURI(null)}
@@ -235,7 +259,6 @@ const styles = StyleSheet.create({
   pickerset: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     width: "30%",
     alignSelf: "center",
     marginBottom: 15,
@@ -265,16 +288,22 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },  
   buttonContainer: {
+    flexDirection: "row",
     marginHorizontal: 0,
     position: "absolute",
-// Position 10% from the bottom
-    right: "45%",
+    bottom: '2.5%',
+    textAlign: "center",
     alignSelf: "center", // Center horizontally
+  },
+  buttonContainer2: {
+    flexDirection: "row",
+    marginHorizontal: 0,
+    position: "absolute",
+    textAlign: "center",
+    bottom: '15%'
   },
   captureButton: {
     borderRadius: 35,
-    padding: 5,
-    backgroundColor: "#404040",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -283,20 +312,59 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  imageText: {
+  container: {
     flex: 1,
-    color: 'white',
-    justifyContent: 'flex-end',
-    backgroundColor: '#'
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageContainer: {
-    display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8', // Light background for the whole container
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000', // Adds shadow effect
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3, // For Android shadow
+    width: '100%',
+    height: '100%',
+    paddingVertical: '10%'
   },
-  middleContainer: {
-    display: 'flex',
+  middleContainerFirst: {
     flexDirection: 'row',
-    flex: 1
+    justifyContent: 'space-evenly',
+    margin: 0,
+    width: '100%',
+    height: '80%'
+  },
+  middleContainerSecond: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    height: '20%'
+  },
+  imageText: {
+    backgroundColor: '#fff', // White background for the text container
+    padding: 10,
+    borderRadius: 8, // Rounded corners
+    marginTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000', // Shadow for text container
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2, // For Android shadow
+    width: '40%'
+  },
+  imageTextTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   instructions: {
     position: 'absolute',
@@ -306,32 +374,17 @@ const styles = StyleSheet.create({
     color: "green",
     fontSize: 30
   },
-  container: {
-    flex: 1,
-  },
   camera: {
     flex: 1,
     height: '100%',
     
   },
-  camera2: {
-    flex: 1,
-    width: WINDOW_WIDTH,
-    height: WINDOW_HEIGHT,
-    resizeMode: 'contain',
-  },
   previewContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "black",
-  },
-  preview: {
-    width: WINDOW_WIDTH * 0.8,
-    height: WINDOW_HEIGHT * 0.8,
-    resizeMode: "contain",
+    alignItems: "center"
   },
   retakeButton: {
+    textAlign: 'center',
     backgroundColor: "#404040",
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -339,6 +392,7 @@ const styles = StyleSheet.create({
     margin: 3
   },
   retakeText: {
+    textAlign: "center",
     color: "white",
     fontSize: 16,
   },

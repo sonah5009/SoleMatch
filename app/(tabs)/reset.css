@@ -16,17 +16,29 @@
 }
 .page-reset .camera-button .r-position-u8s1d {
     position: absolute;
-    bottom: 2.5%;
     
+    left: 47%;
 }
 
-/* 
-.page-reset-detail .r-position-u8s1d {
+/* .taken-iamge .r-width-fg9kxm {
+    width: auto;
+    height: auto;
+} */
+/* .page-reset-detail .r-position-u8s1d {
     position: absolute;
 } */
 
 .page-reset-detail .css-text-146c3p1 {
     display: block;
+}
+
+.page-reset-detail-2 .css-text-146c3p1 {
+    display: block;
+    position: inherit;
+}
+
+.page-reset-detail-2 .r-position-u8s1d {
+    position: inherit;
 }
 
 /* .page-reset .r-marginBottom-8d26hk {
