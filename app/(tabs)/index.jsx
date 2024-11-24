@@ -4,6 +4,7 @@ import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCameraPermissions } from "expo-camera";
 
 const window = Dimensions.get("window");
 const blurhash =
@@ -24,6 +25,7 @@ const blurhash =
 export default function index() {
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+  const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -32,7 +34,22 @@ export default function index() {
       setUserId(storedUserId);
       setIsLoading(false); // 로딩 완료
       console.log("storedUserId", storedUserId);
+      if (!permission) {
+        return <View />;
+      }
+      if (!permission.granted) {
+        // Camera permissions are not granted yet.
+        return (
+          <View style={styles.container}>
+            <Text style={styles.message}>
+              We need your permission to show the camera
+            </Text>
+            <Button onPress={requestPermission} title="grant permission" />
+          </View>
+        );
+      }
     };
+
     fetchUserId();
   });
 

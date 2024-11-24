@@ -9,7 +9,7 @@ import {
   Dimensions,
   Button,
   Picker,
-  Platform
+  Platform,
 } from "react-native";
 import {
   Camera,
@@ -19,7 +19,7 @@ import {
 } from "expo-camera";
 import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons"; // 아이콘을 위해 추가
-import axios from 'axios';
+import axios from "axios";
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const WINDOW_WIDTH = Dimensions.get("window").width;
 
@@ -39,12 +39,14 @@ export default function captureFootSize() {
   const [rightLength, setRightLength] = useState(null);
   const cameraRef = useRef(null);
 
+  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         console.log("Fetching users...");
-        const response = await axios.get('http://127.0.0.1:5000/users');
+        const response = await axios.get(`${BASE_URL}/users`);
         setUsers(response.data); // Updated to use response data directly
         setSelectedUser(response.data[0]?.userName || null); // Set the first user or null
       } catch (error) {
@@ -57,21 +59,20 @@ export default function captureFootSize() {
     if (cameraRef.current) {
       const photo = await cameraRef.current?.takePictureAsync();
       setImageURI(photo.uri);
-      console.log("HI")
+      console.log("HI");
     }
   };
   const sendImageToServer = async (photo) => {
-    
     let filename;
-    if(!leftfeet) {
+    if (!leftfeet) {
       setLeftfeet(true);
       setRightfeet(false);
-      filename=selectedUser+"_left.jpg";
+      filename = selectedUser + "_left.jpg";
     } else {
       setRightfeet(true);
-      filename=selectedUser+"_right.jpg";
+      filename = selectedUser + "_right.jpg";
     }
-  
+
     // Remove the prefix (e.g., "data:image/png;base64,")
     const base64String = photo.replace(/^data:image\/\w+;base64,/, "");
     // Convert the base64 string to a binary data buffer
@@ -82,21 +83,21 @@ export default function captureFootSize() {
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: "image/jpeg" }); // You can adjust the MIME type if needed
-  
+
     const formData = new FormData();
     formData.append("file", blob); // The third parameter specifies the filename
     formData.append("fileName", filename); // The third parameter specifies the filename
     formData.append("user", selectedUser); // The third parameter specifies the filename
 
     setImageURI(null);
-    if(rightfeet) {
+    if (rightfeet) {
       setLeftfeet(false);
       setRightfeet(false);
     }
 
     try {
       console.log("hii");
-      const res = await axios.post("http://127.0.0.1:5000/analyze_size", formData, {
+      const res = await axios.post(`${BASE_URL}/analyze_size`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -106,7 +107,7 @@ export default function captureFootSize() {
       if (res.data && res.data.image) {
         console.log("HIIIIII");
         // If it's a base64 image string
-        if(!leftResult) {
+        if (!leftResult) {
           setLeftResult(`data:image/png;base64,${res.data.image}`);
           setLeftWidth(res.data.width);
           setLeftLength(res.data.length);
@@ -114,11 +115,9 @@ export default function captureFootSize() {
           setRightResult(`data:image/png;base64,${res.data.image}`);
           setRightWidth(res.data.width);
           setRightLength(res.data.length);
-
         }
         console.log("HIIIIII");
       }
-
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -140,74 +139,82 @@ export default function captureFootSize() {
 
   return (
     <View style={styles.container}>
-      {leftResult && rightResult && (<View style={styles.imageContainer}>
-        <View style={styles.middleContainer}>
-          <Image source={{ uri: leftResult }} style={styles.camera2} />
+      {leftResult && rightResult && (
+        <View style={styles.imageContainer}>
+          <View style={styles.middleContainer}>
+            <Image source={{ uri: leftResult }} style={styles.camera2} />
 
-          <Image
-            source={{ uri: rightResult }}
-            style={styles.camera2} // Adjust dimensions as needed
-
-          />
-        </View>
-        <View style={styles.middleContainer}>
-          <View style={styles.imageText}>
-            <Text>Left Foot</Text>
-            <Text>Width: {leftWidth} mm</Text>
-            <Text>Length: {leftLength} mm</Text>
+            <Image
+              source={{ uri: rightResult }}
+              style={styles.camera2} // Adjust dimensions as needed
+            />
           </View>
-          <View style={styles.imageText}>
-            <Text>Right Foot</Text>
-            <Text>Width: {rightWidth} mm</Text>
-            <Text>Length: {rightLength} mm</Text>
-          </View>
-        </View>
-
-      </View>)}
-
-      {!rightResult && (<View>
-      <Text style={styles.label}>Select User:</Text>
-      <Picker
-        selectedValue={selectedUser}
-        onValueChange={(itemValue) => setSelectedUser(itemValue)}
-        style={styles.picker}
-      >
-        {users.map((user, index) => (
-          <Picker.Item key={index} label={user.userName} value={user.userName} />
-        ))}
-      </Picker>
-      {!imageURI ? (
-        <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
-          <Text style={styles.instructions}>
-              {leftfeet ? "오른쪽 발을 찍어주세요." : "왼쪽 발을 찍어주세요."}
-            </Text>
-          <View style={styles.buttonContainer}>
-            
-            <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
-              <MaterialIcons name="camera" size={50} color="white" />
-            </TouchableOpacity>
-          </View>
-        </CameraView>
-      ) : (
-        <View style={styles.previewContainer}>
-          <Image source={{ uri: imageURI }} style={styles.preview} />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.retakeButton}
-              onPress={() => setImageURI(null)}
-            >
-              <Text style={styles.retakeText}>Retake</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.retakeButton}
-              onPress={() => sendImageToServer(imageURI)}
-            >
-              <Text style={styles.confirmText}>Confirm</Text>
-            </TouchableOpacity>
+          <View style={styles.middleContainer}>
+            <View style={styles.imageText}>
+              <Text>Left Foot</Text>
+              <Text>Width: {leftWidth} mm</Text>
+              <Text>Length: {leftLength} mm</Text>
+            </View>
+            <View style={styles.imageText}>
+              <Text>Right Foot</Text>
+              <Text>Width: {rightWidth} mm</Text>
+              <Text>Length: {rightLength} mm</Text>
+            </View>
           </View>
         </View>
       )}
-      </View>)}
+
+      {!rightResult && (
+        <View>
+          <Text style={styles.label}>Select User:</Text>
+          <Picker
+            selectedValue={selectedUser}
+            onValueChange={(itemValue) => setSelectedUser(itemValue)}
+            style={styles.picker}
+          >
+            {users.map((user, index) => (
+              <Picker.Item
+                key={index}
+                label={user.userName}
+                value={user.userName}
+              />
+            ))}
+          </Picker>
+          {!imageURI ? (
+            <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
+              <Text style={styles.instructions}>
+                {leftfeet ? "오른쪽 발을 찍어주세요." : "왼쪽 발을 찍어주세요."}
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.captureButton}
+                  onPress={takeImage}
+                >
+                  <MaterialIcons name="camera" size={50} color="white" />
+                </TouchableOpacity>
+              </View>
+            </CameraView>
+          ) : (
+            <View style={styles.previewContainer}>
+              <Image source={{ uri: imageURI }} style={styles.preview} />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.retakeButton}
+                  onPress={() => setImageURI(null)}
+                >
+                  <Text style={styles.retakeText}>Retake</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.retakeButton}
+                  onPress={() => sendImageToServer(imageURI)}
+                >
+                  <Text style={styles.confirmText}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -215,25 +222,25 @@ export default function captureFootSize() {
 const styles = StyleSheet.create({
   imageText: {
     flex: 1,
-    color: 'white',
-    justifyContent: 'flex-end',
-    backgroundColor: '#'
+    color: "white",
+    justifyContent: "flex-end",
+    backgroundColor: "#",
   },
   imageContainer: {
-    display: 'flex',
-    flexDirection: 'column'
+    display: "flex",
+    flexDirection: "column",
   },
   middleContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1
+    display: "flex",
+    flexDirection: "row",
+    flex: 1,
   },
   instructions: {
     justifyContent: "center",
     alignSelf: "center",
     textAlign: "center",
     color: "green",
-    fontSize: 30
+    fontSize: 30,
   },
   container: {
     flex: 1,
@@ -247,7 +254,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   buttonContainer: {
     flex: 1,
@@ -281,7 +288,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
-    margin: 3
+    margin: 3,
   },
   retakeText: {
     color: "white",
