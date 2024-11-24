@@ -1,5 +1,5 @@
 import { Colors } from "@/constants/Colors";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Image } from "expo-image";
 import React, { useState } from "react";
 import { View, Text, TextInput, Alert, StyleSheet } from "react-native";
@@ -16,26 +16,42 @@ export default function userInput() {
     try {
       const response = await fetch(`${BACKEND_LOCAL_URL}/api/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ name: userName }),
       });
 
       if (response.ok) {
         const data = await response.json();
         const { userId } = data;
-        await AsyncStorage.multiSet([
-          ["userName", userName],
-          ["userId", String(userId)],
+        console.log("userId!: ", userId);
+
+        // Save to AsyncStorage and wait for it to complete
+        await Promise.all([
+          AsyncStorage.setItem("userName", userName),
+          AsyncStorage.setItem("userId", String(userId)),
+          console.log("async!: ", userId),
+          router.replace("/"),
         ]);
-        Alert.alert("Success", `User registered with ID: ${userId}`);
+
+        Alert.alert("Success", `User registered with ID: ${userId}`, [
+          {
+            text: "OK",
+            // onPress: () => {
+            //   // Only navigate after AsyncStorage operations are complete
+            //   router.replace("/");
+            // },
+          },
+        ]);
       } else {
         Alert.alert("Error", "Failed to register user.");
       }
     } catch (error) {
+      console.error(error);
       Alert.alert("Error", "An error occurred during registration.");
     }
   };
-
   return (
     <CentralLayout>
       <Image
