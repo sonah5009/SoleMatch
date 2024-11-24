@@ -6,8 +6,16 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 
+import { useSegments } from "expo-router";
+
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
+
+  const segments = useSegments()[1];
+  console.log(segments);
+
+  // Determine if tabs should be hidden
+  const isTabHidden = segments === "measurePressure";
 
   return (
     <Tabs
@@ -18,9 +26,9 @@ export default function TabsLayout() {
         },
         headerShadowVisible: false,
         headerTintColor: Colors.gray.gray500,
-        tabBarStyle: {
-          // backgroundColor: "#25292e",
-        },
+        tabBarStyle: isTabHidden
+          ? { display: "none" } // Hide tabs
+          : {}, // Default style
       }}
     >
       <Tabs.Screen
