@@ -43,8 +43,8 @@ export default function captureFootSize() {
 
   const cameraRef = useRef(null);
 
-  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {

@@ -6,8 +6,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import PressureGuide from "@/components/PressureGuide";
 
 const window = Dimensions.get("window");
-// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
 const getUserId = async () => {
   if (Platform.OS === "web") {
