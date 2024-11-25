@@ -1,4 +1,4 @@
-
+import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
 import { Colors } from "@/constants/Colors";
@@ -55,7 +55,15 @@ export default function index() {
   });
 
   return (
-    <View style={styles.container}>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: "#013d2a", dark: "#1D3D47" }}
+      headerImage={
+        <Image
+          source={require("../../assets/images/partial-SoleMatch-logo.png")}
+          style={styles.reactLogo}
+        />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.title}>
           발의 압력을 재고 사진을 찍으면{"\n"} AI가 신발을 추천해드려요
@@ -149,7 +157,7 @@ export default function index() {
           </View>
         </View>
       </View>
-    </View>
+    </ParallaxScrollView>
   );
 }
 
@@ -232,5 +240,13 @@ const styles = StyleSheet.create({
   buttonDescription: {
     fontSize: 16,
     color: "#666",
+  },
+  reactLogo: {
+    opacity: 90,
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: "absolute",
   },
 });
