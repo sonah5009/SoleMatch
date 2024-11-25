@@ -42,7 +42,7 @@ CORS(
 
 # Define the base paths for different environments
 
-BASE_PATH = '/home/sonah5009/mysite'
+BASE_PATH = './'
 UPLOAD_FOLDER = os.path.join(BASE_PATH, "uploads")
 
 # Set the upload and base paths in app config
