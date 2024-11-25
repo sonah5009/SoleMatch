@@ -7,8 +7,8 @@ import CentralLayout from "@/components/CentralLayout";
 import NavigateButton from "@/components/NavigateButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+// const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 console.log(BASE_URL);
 console.log("BASE_URL");
 
