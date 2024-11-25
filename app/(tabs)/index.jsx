@@ -56,7 +56,7 @@ export default function index() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: "#013d2a", dark: "#1D3D47" }}
+      headerBackgroundColor={{ light: Colors.gray.gray200, dark: "#1D3D47" }}
       headerImage={
         <Image
           source={require("../../assets/images/partial-SoleMatch-logo.png")}

@@ -34,11 +34,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerStyle: {
-            backgroundColor: "#013D2A",
-          },
-          // headerTintColor: "#2a2a2a",
-          headerTintColor: "#ffffffe0",
           title: "내 발 정보",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
