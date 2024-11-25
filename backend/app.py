@@ -25,6 +25,8 @@ CORS(
                 "http://127.0.0.1:5000",  # 로컬 Flask 테스트
                 "https://sonah5009.pythonanywhere.com",  # 실제 Flask 서버 URL
                 "exp://172.30.122.251:8081",  # Expo Go
+                "http://192.168.0.16:5000",
+                "http://192.168.0.16:8081"
             ],
             "supports_credentials": True,  # 쿠키나 인증 헤더 허용
         }
@@ -76,7 +78,6 @@ def get_all_users():
                 "userName": row[1]
             }
             users.append(user)
-        print(users)
         return jsonify(users), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -110,7 +111,7 @@ def imwrite(filename, img, params=None):
 def analyze_size(file=None):
 
     try :
-        file = request.files.get('file')
+        file = request.files['file']
         if file==None:
             return   jsonify({"error": "No file"}), 400
         print(file)
@@ -142,7 +143,7 @@ def analyze_size(file=None):
         # Process contours (similar to your existing logic)
         for c in cnts:
             # if the contour is not sufficiently large, ignore it
-            if cv2.contourArea(c) < 500:
+            if cv2.contourArea(c) < 3000:
                 continue
 
             # approximate the contour
@@ -343,5 +344,6 @@ def start_measurement():
         return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.1', port=5000)
+    app.run(debug=True, host='192.168.0.105', port=5000)
+    # app.run(debug=True, host='0.0.0.1', port=5000)
     # app.run(debug=not IS_PRODUCTION, host='0.0.0.0', port=5000)
