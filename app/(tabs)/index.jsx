@@ -1,10 +1,11 @@
-
+import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCameraPermissions } from "expo-camera";
 
 const window = Dimensions.get("window");
 const blurhash =
@@ -25,6 +26,7 @@ const blurhash =
 export default function index() {
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+  const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -33,12 +35,35 @@ export default function index() {
       setUserId(storedUserId);
       setIsLoading(false); // 로딩 완료
       console.log("storedUserId", storedUserId);
+      if (!permission) {
+        return <View />;
+      }
+      if (!permission.granted) {
+        // Camera permissions are not granted yet.
+        return (
+          <View style={styles.container}>
+            <Text style={styles.message}>
+              We need your permission to show the camera
+            </Text>
+            <Button onPress={requestPermission} title="grant permission" />
+          </View>
+        );
+      }
     };
+
     fetchUserId();
   });
 
   return (
-    <View style={styles.container}>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: Colors.gray.gray200, dark: "#1D3D47" }}
+      headerImage={
+        <Image
+          source={require("../../assets/images/partial-SoleMatch-logo.png")}
+          style={styles.reactLogo}
+        />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.title}>
           발의 압력을 재고 사진을 찍으면{"\n"} AI가 신발을 추천해드려요
@@ -132,7 +157,7 @@ export default function index() {
           </View>
         </View>
       </View>
-    </View>
+    </ParallaxScrollView>
   );
 }
 
@@ -215,5 +240,13 @@ const styles = StyleSheet.create({
   buttonDescription: {
     fontSize: 16,
     color: "#666",
+  },
+  reactLogo: {
+    opacity: 90,
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: "absolute",
   },
 });

@@ -44,10 +44,10 @@ export default function captureFootSize() {
   const [leftLength, setLeftLength] = useState(null);
   const [rightWidth, setRightWidth] = useState(null);
   const [rightLength, setRightLength] = useState(null);
-  
   const [isLoading, setIsLoading] = useState(false);
-
   const cameraRef = useRef(null);
+  
+  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
   const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
   useEffect(() => {
@@ -84,17 +84,14 @@ export default function captureFootSize() {
   const sendImageToServer = async (photo) => {
     setIsLoading(true);
     let filename;
-    if(!leftfeet) {
+    if (!leftfeet) {
       setLeftfeet(true);
       filename=selectedUser+"_left.jpg";
     } else {
       setRightfeet(true);
-      filename=selectedUser+"_right.jpg";
+      filename = selectedUser + "_right.jpg";
     }
-
-    console.log("hi44");
     const formData = new FormData();
-    console.log(photo)
     formData.append("file", {
       uri: photo,
       type: 'image/jpeg',
@@ -103,7 +100,6 @@ export default function captureFootSize() {
     formData.append("fileName", filename); // The third parameter specifies the filename
     formData.append("user", selectedUser); // The third parameter specifies the filename
     
-
     if(rightfeet) {
       setLeftfeet(false);
       setRightfeet(false);
@@ -121,7 +117,7 @@ export default function captureFootSize() {
 
       if (res.data && res.data.image) {
         // If it's a base64 image string
-        if(!leftResult) {
+        if (!leftResult) {
           setLeftResult(`data:image/png;base64,${res.data.image}`);
           setLeftWidth(res.data.width);
           setLeftLength(res.data.length);
@@ -134,8 +130,6 @@ export default function captureFootSize() {
         alert("다시 시도해주세요.");
 
       }
-
-
     } catch (error) {
       console.error("Error uploading image:", error);
     } finally {
@@ -304,7 +298,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingHorizontal: 8,
     paddingVertical: 5,
-    backgroundColor: '#f7f9fc',
+    backgroundColor: "#f7f9fc",
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -392,13 +386,13 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
   imageContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f8f8', // Light background for the whole container
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f8f8f8", // Light background for the whole container
     padding: 15,
     borderRadius: 10,
-    shadowColor: '#000', // Adds shadow effect
+    shadowColor: "#000", // Adds shadow effect
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -412,8 +406,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     margin: 0,
-    width: '100%',
-    height: '80%'
+    width: "100%",
+    height: "80%",
   },
   middleContainerSecond: {
     flexDirection: 'row',
@@ -423,13 +417,13 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   imageText: {
-    backgroundColor: '#fff', // White background for the text container
+    backgroundColor: "#fff", // White background for the text container
     padding: 10,
     borderRadius: 8, // Rounded corners
     marginTop: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000', // Shadow for text container
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000", // Shadow for text container
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -438,7 +432,7 @@ const styles = StyleSheet.create({
   },
   imageTextTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
 });

@@ -83,6 +83,22 @@ Here are the primary colors used:
 
 ---
 
+## 🚀 How to Build and Run the App
+
+1. build
+
+```bash
+npx expo export
+```
+
+2. start
+
+```bash
+ npx serve dist
+```
+
+---
+
 ## 📚 Backend Setup
 
 The backend is implemented in Python and uses Flask. To set up and run the backend:

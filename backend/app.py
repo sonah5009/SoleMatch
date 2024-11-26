@@ -7,10 +7,10 @@ import os
 import sqlite3
 from measure import measure_pressure, save_measurement_image
 from scipy.spatial import distance as dist
-from imutils import perspective
+# from imutils import perspective
 from imutils import contours
 import numpy as np
-import argparse
+# import argparse
 import imutils
 import cv2
 import base64
@@ -40,11 +40,7 @@ CORS(
 )
 
 # Define the base paths for different environments
-# PRODUCTION_PATH = '/home/sonah5009/mysite'
-# DEVELOPMENT_PATH = '/Users/choesuna/sonah-git/SoleMatch/backend'
-# IS_PRODUCTION = os.getenv("FLASK_ENV") == "production"
 
-# BASE_PATH = PRODUCTION_PATH if IS_PRODUCTION else DEVELOPMENT_PATH
 BASE_PATH = './'
 UPLOAD_FOLDER = os.path.join(BASE_PATH, "uploads")
 
@@ -349,8 +345,8 @@ def start_measurement():
         print(e)
         return jsonify({"success": False, "error": str(e)})
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':  
     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
-    # app.run(debug=True, host='192.168.0.105', port=5000)
     # app.run(debug=True, host='0.0.0.1', port=5000)
     # app.run(debug=not IS_PRODUCTION, host='0.0.0.0', port=5000)

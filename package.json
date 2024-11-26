@@ -52,6 +52,7 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.2",
     "react-native-pager-view": "6.5.1"
+    "@expo/metro-runtime": "~4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -24,3 +24,5 @@ backend/user_data.db
 expo-env.d.ts
 .env
 # @end expo-cli
+# Local Netlify folder
+.netlify
