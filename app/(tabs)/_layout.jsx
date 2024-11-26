@@ -86,6 +86,18 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="recommendShoes"
+        options={{
+          title: "신발 추천",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "footsteps-sharp" : "footsteps-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

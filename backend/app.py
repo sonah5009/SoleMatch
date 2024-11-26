@@ -15,7 +15,6 @@ import imutils
 import cv2
 import base64
 
-# load .env
 load_dotenv()
 LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
 
@@ -81,7 +80,6 @@ def get_all_users():
                 "userName": row[1]
             }
             users.append(user)
-        print(users)
         return jsonify(users), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -115,7 +113,7 @@ def imwrite(filename, img, params=None):
 def analyze_size(file=None):
 
     try :
-        file = request.files.get('file')
+        file = request.files['file']
         if file==None:
             return   jsonify({"error": "No file"}), 400
         print(file)
@@ -147,7 +145,7 @@ def analyze_size(file=None):
         # Process contours (similar to your existing logic)
         for c in cnts:
             # if the contour is not sufficiently large, ignore it
-            if cv2.contourArea(c) < 500:
+            if cv2.contourArea(c) < 3000:
                 continue
 
             # approximate the contour
@@ -346,6 +344,7 @@ def start_measurement():
     except Exception as e:
         print(e)
         return jsonify({"success": False, "error": str(e)})
+
 
 if __name__ == '__main__':  
     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
