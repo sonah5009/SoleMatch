@@ -26,9 +26,9 @@ export default function TabsLayout() {
         },
         headerShadowVisible: false,
         headerTintColor: Colors.gray.gray500,
-        tabBarStyle: isTabHidden
-          ? { display: "none" } // Hide tabs
-          : {}, // Default style
+        // tabBarStyle: isTabHidden
+        //   ? { display: "none" } // Hide tabs
+        //   : {}, // Default style
       }}
     >
       <Tabs.Screen
