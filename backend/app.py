@@ -17,6 +17,10 @@ import base64
 
 load_dotenv()
 LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
+BACKEND_LOCAL_URL = os.environ.get('BACKEND_LOCAL_URL')
+BACKEND_PATH = os.environ.get('BACKEND_PATH')
+print("LOCAL_IP_ADDRESS", LOCAL_IP_ADDRESS)
+print("BACKEND_LOCAL_URL", BACKEND_LOCAL_URL)
 
 app = Flask(__name__)
 # CORS 설정
@@ -32,7 +36,6 @@ CORS(
                 "http://192.168.0.16:5000",
                 "http://192.168.0.16:8081"
                 "http://172.30.122.55:8081",
-                "https://solematch.netlify.app"
             ],
             "supports_credentials": True,  # 쿠키나 인증 헤더 허용
         }
@@ -41,7 +44,7 @@ CORS(
 
 # Define the base paths for different environments
 
-BASE_PATH = './'
+BASE_PATH = BACKEND_PATH
 UPLOAD_FOLDER = os.path.join(BASE_PATH, "uploads")
 
 # Set the upload and base paths in app config
@@ -61,15 +64,11 @@ def get_all_users():
         db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
         print(db_path)
         connection = sqlite3.connect(db_path)
-        print("success")
         cursor = connection.cursor()
-        print("success")
 
         # Query to get all users
         cursor.execute('SELECT * FROM users')
-        print("success")
         rows = cursor.fetchall()
-        print("success")
         connection.close()
 
         # Convert data to a list of dictionaries for JSON response
@@ -116,19 +115,20 @@ def analyze_size(file=None):
         file = request.files['file']
         if file==None:
             return   jsonify({"error": "No file"}), 400
-        print(file)
+        print("file: ", file)
         fileName = request.form.get('fileName')
         user = request.form.get('user')
 
-        temp_path = os.path.join('./uploads', fileName)
-        print(temp_path)
+        # temp_path = os.path.join('./uploads', fileName)
+        temp_path = os.path.join(app.config['BASE_PATH'], "temp", fileName)
+        print("temp_path: ", temp_path)
         file.save(temp_path)
 
         width_of_leftmost_object = 1.06  # Set your width in inches here
 
         # Load and process the image
         image = imread(temp_path)
-        print(image)
+        print("image: ", image)
         if image is None:
             return jsonify({"error": "Image not found"}), 400
 
@@ -161,7 +161,7 @@ def analyze_size(file=None):
             min_rect_width = min(rect[1])  # smaller dimension
 
             box = cv2.boxPoints(rect)  # obtain 4 points of the bounding box
-            box2 = np.int0(box)  # convert to integer values
+            box2 = np.int64(box)  # convert to integer values
             cv2.drawContours(orig, [box2], -1, (0, 255, 0), 2)
 
             (tl, tr, br, bl) = box
@@ -239,8 +239,8 @@ def analyze_size(file=None):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
 
 
-            output_path = f"./analyzed/{fileName}"
-            print(output_path)
+            # output_path = f"./analyzed/{fileName}"
+            output_path = os.path.join(app.config['BASE_PATH'], "analyzed", fileName)
             imwrite(output_path, orig)
 
         width_mm = min_rect_width / pixelsPerMetric * 25.4
@@ -261,13 +261,14 @@ def analyze_size(file=None):
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
         if fileName.split('_')[1]=='left.jpg':
-            print("HIHI")
+            print("db_path: ", db_path)
             cursor.execute('UPDATE users SET leftFootSize = (?), leftWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
         else:
             cursor.execute('UPDATE users SET rightFootSize = (?), rightWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
             
         connection.commit()
         connection.close()
+        
         return jsonify(response_data)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
@@ -277,7 +278,8 @@ def analyze_size(file=None):
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     print("Request for file:", filename)  # Log file request
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
