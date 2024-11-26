@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory, send_file, jsonify, make_response
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
@@ -14,6 +15,9 @@ import imutils
 import cv2
 import base64
 
+load_dotenv()
+LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
+
 app = Flask(__name__)
 # CORS 설정
 CORS(
@@ -27,6 +31,8 @@ CORS(
                 "exp://172.30.122.251:8081",  # Expo Go
                 "http://192.168.0.16:5000",
                 "http://192.168.0.16:8081"
+                "http://172.30.122.55:8081",
+                "https://solematch.netlify.app"
             ],
             "supports_credentials": True,  # 쿠키나 인증 헤더 허용
         }
@@ -344,6 +350,7 @@ def start_measurement():
         return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.0.105', port=5000)
+    app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
+    # app.run(debug=True, host='192.168.0.105', port=5000)
     # app.run(debug=True, host='0.0.0.1', port=5000)
     # app.run(debug=not IS_PRODUCTION, host='0.0.0.0', port=5000)
