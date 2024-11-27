@@ -16,7 +16,7 @@ import cv2
 import base64
 
 load_dotenv()
-BACKEND_PATH = os.environ.get('BACKEND_PATH')
+BACKEND_PATH = "/home/sonah5009/mysite"
 LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
 EXPO_PUBLIC_BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
 
@@ -344,5 +344,5 @@ def start_measurement():
         return jsonify({"success": False, "error": str(e)})
 
 
-if __name__ == '__main__':  
-    app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
+# if __name__ == '__main__':  
+#     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
