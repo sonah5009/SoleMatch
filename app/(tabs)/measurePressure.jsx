@@ -22,8 +22,10 @@ export default function measurePressure() {
 
   const startMeasurement = async () => {
     setType("ing");
+    // setType("start");
     try {
       const userId = await getUserId();
+      console.log("measurePressure.jsx");
       console.log("User ID:", userId);
 
       const response = await fetch(`${BASE_URL}/api/pressure`, {
