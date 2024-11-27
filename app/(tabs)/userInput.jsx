@@ -9,8 +9,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
-console.log(BASE_URL);
-console.log("BASE_URL");
+console.log("userInput redered");
+console.log(BASE_URL, "BASE_URL");
 
 export default function userInput() {
   const [userName, setUserName] = useState("");
@@ -32,23 +32,25 @@ export default function userInput() {
 
         // Save to AsyncStorage and wait for it to complete
         await Promise.all([
-          // localStorage.setItem("userName", userName),
-          // localStorage.setItem("userId", String(userId)),
           AsyncStorage.setItem("userName", userName),
           AsyncStorage.setItem("userId", String(userId)),
           console.log("async!: ", userId),
           router.replace("/"),
         ]);
 
-        Alert.alert("Success", `User registered with ID: ${userId}`, [
-          {
-            text: "OK",
-            // onPress: () => {
-            //   // Only navigate after AsyncStorage operations are complete
-            //   router.replace("/");
-            // },
-          },
-        ]);
+        Alert.alert(
+          "Success",
+          `User registered with ID and Name: ${userId} ${userName}`,
+          [
+            {
+              text: "OK",
+              // onPress: () => {
+              //   // Only navigate after AsyncStorage operations are complete
+              //   router.replace("/");
+              // },
+            },
+          ]
+        );
       } else {
         Alert.alert("Error", "Failed to register user.");
       }
