@@ -48,15 +48,18 @@ export default function captureFootSize() {
   const cameraRef = useRef(null);
   
   // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+  const BASE_URL =  "http://192.168.0.105:5000";
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         console.log("Fetching users...");
-        const response = await axios.get(`${BASE_URL}/users`);
-        setUsers(response.data); // Updated to use response data directly
-        setSelectedUser(response.data[0]?.userName || null); // Set the first user or null
+        console.log(`${BASE_URL}/users`);
+        const response = await fetch(`${BASE_URL}/users`);
+        
+        const data = await response.json();
+        setUsers(data); // Updated to use response data directly
+        setSelectedUser(data[0]?.userName || null); // Set the first user or null
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }

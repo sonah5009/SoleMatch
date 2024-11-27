@@ -9,8 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint",
-    "postinstall": "patch-package"
+    "lint": "expo lint"
   },
   "jest": {
     "preset": "jest-expo"
@@ -21,7 +20,6 @@
     "@react-native-picker/picker": "^2.9.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
-    "@types/react-native-snap-carousel": "^3.8.11",
     "axios": "^1.7.7",
     "expo": "^52.0.11",
     "expo-blur": "~14.0.1",
@@ -51,7 +49,7 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.2",
-    "react-native-pager-view": "6.5.1"
+    "react-native-pager-view": "6.5.1",
     "@expo/metro-runtime": "~4.0.0"
   },
   "devDependencies": {
