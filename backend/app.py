@@ -16,11 +16,11 @@ import cv2
 import base64
 
 load_dotenv()
-LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
-BACKEND_LOCAL_URL = os.environ.get('BACKEND_LOCAL_URL')
 BACKEND_PATH = os.environ.get('BACKEND_PATH')
+LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
+EXPO_PUBLIC_BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
+
 print("LOCAL_IP_ADDRESS", LOCAL_IP_ADDRESS)
-print("BACKEND_LOCAL_URL", BACKEND_LOCAL_URL)
 
 app = Flask(__name__)
 # CORS 설정
@@ -29,13 +29,9 @@ CORS(
     resources={
         r"/*": {
             "origins": [
-                "http://localhost:8081",  # Expo 웹 미리보기
-                "http://127.0.0.1:5000",  # 로컬 Flask 테스트
-                "https://sonah5009.pythonanywhere.com",  # 실제 Flask 서버 URL
-                "exp://172.30.122.251:8081",  # Expo Go
-                "http://192.168.0.16:5000",
-                "http://192.168.0.16:8081"
-                "http://172.30.122.55:8081",
+                "http://localhost:8081",
+                EXPO_PUBLIC_BACKEND_URL,
+                f"http://{LOCAL_IP_ADDRESS}:8081"
             ],
             "supports_credentials": True,  # 쿠키나 인증 헤더 허용
         }
@@ -350,5 +346,3 @@ def start_measurement():
 
 if __name__ == '__main__':  
     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
-    # app.run(debug=True, host='0.0.0.1', port=5000)
-    # app.run(debug=not IS_PRODUCTION, host='0.0.0.0', port=5000)
