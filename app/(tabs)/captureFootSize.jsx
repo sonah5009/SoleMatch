@@ -41,8 +41,6 @@ export default function captureFootSize() {
   const [rightLength, setRightLength] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const cameraRef = useRef(null);
-
-  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
   const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
 
   useEffect(() => {
@@ -52,14 +50,10 @@ export default function captureFootSize() {
         // setUsers(response.data); // Updated to use response data directly
 
         console.log("Fetching users...");
+        console.log(`${BASE_URL}/users`);
         const response = await fetch(`${BASE_URL}/users`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        // JSON 데이터 파싱
+        
         const data = await response.json();
-        console.log("Fetched users:", data);
-
         setUsers(data); // Updated to use response data directly
         setSelectedUser(data[0]?.userName || null); // Set the first user or null
       } catch (error) {
