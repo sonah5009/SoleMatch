@@ -9,13 +9,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
-console.log("userInput redered");
-console.log(BASE_URL, "BASE_URL");
 
 export default function userInput() {
+  // console.log("**userInput page**");
   const [userName, setUserName] = useState("");
 
   const handleRegister = async () => {
+    console.log("**userInput page**");
     try {
       const response = await fetch(`${BASE_URL}/api/register`, {
         method: "POST",
@@ -34,23 +34,19 @@ export default function userInput() {
         await Promise.all([
           AsyncStorage.setItem("userName", userName),
           AsyncStorage.setItem("userId", String(userId)),
-          console.log("async!: ", userId),
+          console.log("user 등록 완료!: ", userId),
           router.replace("/"),
         ]);
 
-        Alert.alert(
-          "Success",
-          `User registered with ID and Name: ${userId} ${userName}`,
-          [
-            {
-              text: "OK",
-              // onPress: () => {
-              //   // Only navigate after AsyncStorage operations are complete
-              //   router.replace("/");
-              // },
-            },
-          ]
-        );
+        Alert.alert("Success", `UserId: ${userId} & 이름: ${userName}`, [
+          {
+            text: "OK",
+            // onPress: () => {
+            //   // Only navigate after AsyncStorage operations are complete
+            //   router.replace("/");
+            // },
+          },
+        ]);
       } else {
         Alert.alert("Error", "이미 등록된 이름입니다");
       }
