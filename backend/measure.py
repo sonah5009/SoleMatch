@@ -1,14 +1,12 @@
+from dotenv import load_dotenv
 import time
 import serial
 import json
 import os
 
 # Define the base paths for different environments
-BACKEND_PATH = '/home/sonah5009/mysite'
-LOCAL_BACKEND_PATH = '/Users/choesuna/sonah-git/SoleMatch/backend'
-BASE_PATH = LOCAL_BACKEND_PATH  # Set as BACKEND_PATH for deployment
-
-
+load_dotenv()
+BASE_PATH = os.environ.get('BACKEND_PATH')
 
 def measure_pressure(duration=10):
     # Placeholder data array with mock pressure values
