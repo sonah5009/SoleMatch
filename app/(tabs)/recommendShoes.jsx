@@ -97,9 +97,9 @@ export default function recommendShoes() {
   const [users, setUsers] = useState([]); // users state updated
   const [selectedUser, setSelectedUser] = useState(null);
   const [shoes, setShoes] = useState([]);
-  // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
-  const BASE_URL =  "http://192.168.0.105:5000";
   
+  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+ 
   useEffect(() => {
     const fetchUsers = async () => {
       try {

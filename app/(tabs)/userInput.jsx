@@ -50,7 +50,7 @@ export default function userInput() {
           },
         ]);
       } else {
-        Alert.alert("Error", "Failed to register user.");
+        Alert.alert("Error", "이미 등록된 이름입니다");
       }
     } catch (error) {
       console.error(error);
