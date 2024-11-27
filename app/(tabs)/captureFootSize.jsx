@@ -13,11 +13,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Base64 } from "react-native-base64";
-
-import { Picker } from "@react-native-picker/picker";
-import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons"; // 아이콘을 위해 추가
+import NavigateButton from "../../components/NavigateButton";
+import UserPicker from "../../components/UserPicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // import axios from "axios";
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
@@ -27,6 +26,7 @@ export default function captureFootSize() {
   const [imageURI, setImageURI] = useState(null);
   const [permission, requestPermission] = useCameraPermissions();
 
+  const [userName, setUserName] = useState(null); // 방금 등록한 유저
   const [users, setUsers] = useState([]); // users state updated
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -46,22 +46,21 @@ export default function captureFootSize() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // const response = await axios.get(`${BASE_URL}/users`);
-        // setUsers(response.data); // Updated to use response data directly
+        const storedUserName = await AsyncStorage.getItem("userName");
+        setUserName(storedUserName);
 
+        console.log("**captureFootSize page**");
         console.log("Fetching users...");
-        console.log(`${BASE_URL}/users`);
         const response = await fetch(`${BASE_URL}/users`);
-        
         const data = await response.json();
         setUsers(data); // Updated to use response data directly
-        setSelectedUser(data[0]?.userName || null); // Set the first user or null
+        setSelectedUser(storedUserName || null); // Set the current user or null
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
     };
     fetchUsers();
-  }, []);
+  }, [userName]);
   const initialize = async () => {
     setLeftfeet(false);
     setRightfeet(false);
@@ -227,6 +226,10 @@ export default function captureFootSize() {
           >
             <Text style={styles.confirmText}>Retry</Text>
           </TouchableOpacity>
+          <NavigateButton
+            title="신발 추천 보러가기 ﹥"
+            link="/recommendShoes"
+          />
         </View>
       ) : imageURI ? (
         <View style={styles.previewContainer}>
@@ -248,30 +251,14 @@ export default function captureFootSize() {
         </View>
       ) : (
         <CameraView ref={cameraRef} style={styles.camera} ratio="16:9">
-          <View style={styles.pickerset}>
-            <Text style={styles.label}>사용자 선택</Text>
-            <Picker
-              selectedValue={selectedUser}
-              onValueChange={(itemValue) => setSelectedUser(itemValue)}
-              style={styles.picker}
-            >
-              {Array.isArray(users) &&
-                users.map((user, index) => (
-                  <Picker.Item
-                    key={index}
-                    label={user.userName}
-                    value={user.userName}
-                  />
-                ))}
-              {/* {users.map((user, index) => (
-                <Picker.Item
-                  key={index}
-                  label={user.userName}
-                  value={user.userName}
-                />
-              ))} */}
-            </Picker>
-          </View>
+          <UserPicker
+            users={users}
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+            userName={userName}
+            defaultTitle={`${userName}의 발`}
+            secondTitle="다른 사람의 발"
+          />
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.captureButton} onPress={takeImage}>
               <MaterialIcons name="camera" size={50} color="white" />
