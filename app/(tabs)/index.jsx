@@ -77,7 +77,7 @@ export default function index() {
       <View style={styles.main}>
         {/* Button */}
 
-        <Link href="userInput" replace={true}>
+        <Link href="userInput">
           <View style={styles.buttonContainer}>
             <View>
               <Text style={styles.buttonTitle}>유저 등록 하러가기</Text>

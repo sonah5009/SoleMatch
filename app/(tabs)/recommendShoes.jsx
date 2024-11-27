@@ -1,29 +1,10 @@
 //import './reset.css';
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-  StyleSheet,
-  Dimensions,
-  Button,
-  Platform
-} from "react-native";
-import {
-  Camera,
-  CameraType,
-  CameraView,
-  useCameraPermissions,
-} from "expo-camera";
-import {Picker} from '@react-native-picker/picker';
-import * as FileSystem from "expo-file-system";
-import { MaterialIcons } from "@expo/vector-icons"; 
-import axios from 'axios';
-import PagerView from 'react-native-pager-view';
-const WINDOW_HEIGHT = Dimensions.get("window").height;
-const WINDOW_WIDTH = Dimensions.get("window").width;
+import { View, Text, StyleSheet, Dimensions, Platform } from "react-native";
+
+import { Picker } from "@react-native-picker/picker";
+import axios from "axios";
+import PagerView from "react-native-pager-view";
 
 export default function recommendShoes() {
   const shoeImages = {
@@ -99,7 +80,7 @@ export default function recommendShoes() {
   const [shoes, setShoes] = useState([]);
   
   const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
- 
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
