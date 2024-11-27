@@ -14,6 +14,7 @@ import numpy as np
 import imutils
 import cv2
 import base64
+import ast
 
 load_dotenv()
 LOCAL_IP_ADDRESS = os.environ.get('LOCAL_IP_ADDRESS')
@@ -58,6 +59,43 @@ def hello_world():
 def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
+@app.route('/user', methods=['GET'])
+def get_user_info():
+    try:
+        db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
+        print(db_path)
+        connection = sqlite3.connect(db_path)
+        print("success")
+        cursor = connection.cursor()
+        print("success")
+
+        userName = request.args.get('userName', default=None, type=str)
+
+        # Build SQL query with optional filtering by userName
+        if userName:
+            query = 'SELECT * FROM users WHERE userName = ?'
+            cursor.execute(query, (userName,))
+
+        print("success")
+        row = cursor.fetchone()
+        print("success")
+        connection.close()
+
+        # Return data directly as a JSON response without needing to format manually
+        return jsonify({
+                "userName": row[1],
+                "pressureId": row[2],
+                "pressureValid": row[3],
+                "leftFootSize": row[4],
+                "rightFootSize": row[5],
+                "leftWidth": row[6],
+                "rightWidth": row[7],
+                "class": row[8]
+            }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/users', methods=['GET'])
 def get_all_users():
     try:
@@ -83,6 +121,56 @@ def get_all_users():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/shoes', methods=['GET'])
+def get_shoes():
+    try:
+        db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
+        print(db_path)
+        connection = sqlite3.connect(db_path)
+        print("success")
+        cursor = connection.cursor()
+        print("success")
+
+        # Get user parameters for filtering
+        user_class = request.args.get('class', default=None, type=str)
+        user_size = request.args.get('size', default=None, type=int)
+
+        # Build SQL query with optional filtering by class
+        if user_class:
+            query = 'SELECT * FROM shoes WHERE class = ?'
+            cursor.execute(query, (user_class,))
+        else:
+            query = 'SELECT * FROM shoes'
+            cursor.execute(query)
+
+        rows = cursor.fetchall()
+        connection.close()
+
+        # Convert data to JSON-friendly format and filter based on the size parameter
+        shoes = []
+        for row in rows:
+            # Assuming the availableSizes is stored in the 4th column (index 3)
+            available_size_str = row[3]  # The column where available sizes are stored
+            try:
+                # Safely evaluate the availableSize string to a list
+                available_sizes = ast.literal_eval(available_size_str)
+            except (ValueError, SyntaxError):
+                available_sizes = []  # In case the availableSize is not a valid list
+
+            # Check if the requested size is in the available sizes
+            if user_size and user_size in available_sizes:
+                shoe = {
+                    "id": row[0],
+                    "name": row[2],  # Assuming the name is in the 3rd column (index 2)
+                    "size": user_size,
+                    "site": row[4]  # Assuming the site URL is in the 5th column (index 4)
+                }
+                shoes.append(shoe)
+
+        return jsonify(shoes), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def imread(filename, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
     try:
@@ -260,9 +348,37 @@ def analyze_size(file=None):
         db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
+        
+        width_ratio = (width_mm / length_mm) * 100
+
+        # Classify based on length and width ratio
+
+        class_value = ""
+        if length_mm <= 240:
+            if width_ratio <= 35:
+                class_value = "narrow"
+            elif 35 < width_ratio <= 38:
+                class_value = "medium"
+            elif 38 < width_ratio:
+                class_value = "wide"
+        elif 250 <= length_mm <= 260:
+            if width_ratio <= 34:
+                class_value = "narrow"
+            elif 34 < width_ratio <= 37:
+                class_value = "medium"
+            elif 37 < width_ratio:
+                class_value = "wide"
+        elif 270 <= length_mm:
+            if width_ratio <= 33:
+                class_value = "narrow"
+            elif 33 < width_ratio <= 36:
+                class_value = "medium"
+            else:
+                class_value = "wide"
         if fileName.split('_')[1]=='left.jpg':
-            print("db_path: ", db_path)
-            cursor.execute('UPDATE users SET leftFootSize = (?), leftWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
+            print("HIHI")
+            cursor.execute('UPDATE users SET class = (?), leftFootSize = (?), leftWidth = (?),  WHERE userName = (?)', (class_value, length_mm, width_mm, user))
+
         else:
             cursor.execute('UPDATE users SET rightFootSize = (?), rightWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
             
