@@ -2,12 +2,10 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory, send_file, jsonify, make_response
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
-import json
 import os
 import sqlite3
-from measure import measure_pressure, save_measurement_image
+from measure import async_measure_pressure
 from scipy.spatial import distance as dist
-# from imutils import perspective
 from imutils import contours
 import numpy as np
 # import argparse
@@ -434,27 +432,20 @@ def register_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/pressure', methods=['POST'])
-def start_measurement():
+async def start_measurement():
     try:
-        data = request.json
+        # data = request.json
+        data = request.get_json()
         user_id = data.get("userId")
 
         if not user_id:
             return jsonify({"success": False, "error": "User ID not provided"}), 400
-
-        # Perform the pressure measurement
-        pressure_data = measure_pressure()
-
-        # Save the measurement image
-        image_path = save_measurement_image(user_id)
-
-        # Save pressure data and image path in JSON format
-        json_path = os.path.join(app.config['BASE_PATH'], "pressure", "pressure_data.json")
-        with open(json_path, "w") as f:
-            json.dump({"pressure_data": pressure_data, "image_path": image_path}, f)
-
-        return jsonify({"success": True})
+        
+        # 비동기로 측정 시작
+        avg_array, image_path = await async_measure_pressure(user_id, 10)
+        return jsonify({"success": True, "image_path": image_path})
     except Exception as e:
         print(e)
         return jsonify({"success": False, "error": str(e)})
