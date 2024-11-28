@@ -3,19 +3,16 @@ import React from "react";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useSegments } from "expo-router";
 
 export default function TabsLayout() {
-  const colorScheme = useColorScheme();
+  // const segments = useSegments()[1];
+  // console.log("segments:", segments);
 
-  const segments = useSegments()[1];
-  console.log(segments);
-
-  // Determine if tabs should be hidden
-  const isTabHidden = segments === "measurePressure";
+  // // Determine if tabs should be hidden
+  // const isTabHidden = segments === "measurePressure";
 
   return (
     <Tabs

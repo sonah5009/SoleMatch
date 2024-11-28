@@ -5,7 +5,6 @@ import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCameraPermissions } from "expo-camera";
 
 const window = Dimensions.get("window");
 const blurhash =
@@ -25,30 +24,18 @@ const blurhash =
 
 export default function index() {
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
-  const [permission, requestPermission] = useCameraPermissions();
 
   useEffect(() => {
     const fetchUserId = async () => {
+      console.log("**index page**");
       const storedUserId = await AsyncStorage.getItem("userId");
-      console.log("index page rendered");
+      const storedUserName = await AsyncStorage.getItem("userName");
       setUserId(storedUserId);
+      setUserName(storedUserName);
       setIsLoading(false); // 로딩 완료
-      console.log("storedUserId", storedUserId);
-      if (!permission) {
-        return <View />;
-      }
-      if (!permission.granted) {
-        // Camera permissions are not granted yet.
-        return (
-          <View style={styles.container}>
-            <Text style={styles.message}>
-              We need your permission to show the camera
-            </Text>
-            <Button onPress={requestPermission} title="grant permission" />
-          </View>
-        );
-      }
+      console.log("userName: ", userName);
     };
 
     fetchUserId();
@@ -80,9 +67,19 @@ export default function index() {
         <Link href="userInput">
           <View style={styles.buttonContainer}>
             <View>
-              <Text style={styles.buttonTitle}>유저 등록 하러가기</Text>
+              <Text style={styles.buttonTitle}>
+                {userId ? (
+                  <Text>유저 등록 다시하기</Text>
+                ) : (
+                  <Text>유저 등록 하러가기</Text>
+                )}
+              </Text>
               <Text style={styles.buttonDescription}>
-                정보 등록을 하지 않았다면 먼저해주세요.{"\n"}
+                {userId ? (
+                  <Text>안녕하세요. {userName}님 😆</Text>
+                ) : (
+                  <Text>정보 등록을 하지 않았다면 먼저해주세요.</Text>
+                )}
               </Text>
             </View>
             <Text>{">"}</Text>

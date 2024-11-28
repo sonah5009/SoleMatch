@@ -40,6 +40,12 @@ export default function PressureGuide({
         {type === "end" && (
           <NavigateButton title={buttonTitle} link={buttonLink} />
         )}
+        {type === "fail" && (
+          <>
+            <ActionButton onPress={buttonHandler} title={buttonTitle} />
+            <NavigateButton title="발 사이즈 재러가기 ﹥" link={buttonLink} />
+          </>
+        )}
       </View>
     </>
   );
