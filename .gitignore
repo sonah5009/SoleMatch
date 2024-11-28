@@ -15,6 +15,7 @@ backend/uploads/*
 backend/analyzed/*
 backend/user_data.db
 backend/temp
+backend/pressure/*
 
 # macOS
 .DS_Store

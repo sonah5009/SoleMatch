@@ -1,4 +1,3 @@
-import { Colors } from "@/constants/Colors";
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Dimensions, Alert, Text } from "react-native";
 import { View } from "react-native";
@@ -19,26 +18,42 @@ const getUserId = async () => {
 export default function measurePressure() {
   const [type, setType] = useState("start"); // start, ing, end, error
   const [userName, setUserName] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [imageUri, setImageUri] = useState(null);
 
   useEffect(() => {
     const fetchUserId = async () => {
-      // console.log("**measurePressure page Effect**");
       const storedUserName = await AsyncStorage.getItem("userName");
+      const storedUserId = await AsyncStorage.getItem("userId");
+      setUserId(storedUserId);
       setUserName(storedUserName);
-      setIsLoading(false); // 로딩 완료
     };
 
     fetchUserId();
-  });
+  }, []);
+
+  const fetchPressureImage = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/pressureImage?userId=${userId}`
+      );
+      if (response.ok) {
+        const { image } = await response.json();
+        const imageUri = `data:image/png;base64,${image}`; // Base64 URI 생성
+        setImageUri(imageUri);
+      } else {
+        const { error } = await response.json();
+        throw new Error(error || "Failed to fetch pressure image.");
+      }
+    } catch (error) {
+      console.log("**fetchPressureImage**");
+      Alert.alert("Error", error.message);
+    }
+  };
 
   const startMeasurement = async () => {
     setType("ing");
-    // setType("start");
     try {
-      const userId = await getUserId();
-      console.log("**measurePressure page btn**");
-      console.log("User ID:", userId);
-
       const response = await fetch(`${BASE_URL}/api/pressure`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,26 +62,28 @@ export default function measurePressure() {
 
       if (response.ok) {
         setType("end");
+        await fetchPressureImage(); // 측정 완료 후 이미지 가져오기
       } else {
         setType("fail");
-        console.log(type);
         throw new Error("측정에 실패했어요. 발 사이즈만 측정하러 갈까요?");
       }
     } catch (error) {
-      console.error(error);
       Alert.alert("Error", "발 압력센서 연결이 불안정해요. 🥲");
       setType("fail");
     }
   };
-  const retryMeasrement = async () => {
+
+  const retryMeasurement = () => {
     setType("start");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={{ textAlign: "center" }}> {userName}👣</Text>
+      <Text style={{ textAlign: "center" }}>{userName}👣</Text>
       <PressureGuide
+        userId={userId}
         type={type}
+        imageUri={imageUri}
         bottomText={
           type === "start"
             ? "빨간색선에 맞춰 편하게 서주세요"
@@ -85,18 +102,16 @@ export default function measurePressure() {
             ? "발 사이즈 재러가기 ﹥"
             : "다시 재기"
         }
-        // ActionButton
         buttonHandler={
           type === "start"
             ? startMeasurement
             : type === "fail"
-            ? retryMeasrement
+            ? retryMeasurement
             : null
         }
-        // NavigateButton
         buttonLink={type === "end" ? "/captureFootSize" : "/captureFootSize"}
       />
-      {type == "end" ? (
+      {type === "end" ? (
         <ActionButton
           title="다시 측정하기"
           onPress={() => {

@@ -5,6 +5,127 @@
 
 ---
 
+## 🌍 Environment Variables
+
+The application uses a `.env` file for managing environment-specific configurations. Below are the variables you need to define:
+
+```bash
+# Backend Path and URLs
+BACKEND_PATH=<absolute_path_to_backend_directory>
+LOCAL_IP_ADDRESS=<your_local_ip_address>
+BACKEND_LOCAL_URL=http://<your_local_ip_address>:5000
+
+# Expo Public URLs
+EXPO_PUBLIC_BACKEND_LOCAL_URL=http://<your_local_ip_address>:5000
+EXPO_PUBLIC_BACKEND_URL=https://<your_pythonanywhere_id>.pythonanywhere.com
+
+# Production Backend URL
+BACKEND_URL=https://<your_pythonanywhere_id>.pythonanywhere.com
+
+# Flask Environment
+FLASK_ENV=development
+```
+
+### Example `.env` file
+
+```bash
+BACKEND_PATH=/Users/choesuna/sonah-git/SoleMatch/backend/
+LOCAL_IP_ADDRESS=0.0.0.0
+BACKEND_LOCAL_URL=http://0.0.0.0:5000
+EXPO_PUBLIC_BACKEND_LOCAL_URL=http://0.0.0.0:5000
+
+EXPO_PUBLIC_BACKEND_URL=https://meowmeow1234.pythonanywhere.com
+BACKEND_URL=https://meowmeow1234.pythonanywhere.com
+FLASK_ENV=development
+```
+
+> **Note**: Replace `<absolute_path_to_backend_directory>`, `<your_local_ip_address>` and `/<your_pythonanywhere_id>` with your actual file path, IP address and pythonanywhere ID.
+
+---
+
+## 🚀 How to Run the App
+
+1. Clone the repository (only first):
+
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Install dependencies (only first):
+
+   ```bash
+   npm install
+   ```
+
+3. Start the Expo server:
+
+   ```bash
+   npx expo start -c
+   ```
+
+4. Open the app in the Expo Go app (available on iOS and Android) or in an emulator.
+
+---
+
+## 📚 Backend Setup
+
+The backend is implemented in Python and uses Flask. To set up and run the backend:
+
+1. Navigate to the `backend` directory:
+
+   ```bash
+   cd backend
+   ```
+
+2. Install required dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Set up environment variables:
+
+   Ensure your `.env` file contains the required backend paths and URLs.
+
+4. Run the server:
+
+   ```bash
+   python app.py
+   ```
+
+   or
+
+   ```bash
+   flask run
+   ```
+
+   The server will run on `http://127.0.0.1:5000` by default.
+
+**Etc**:  
+If you encounter `async` error, run following the command in the terminal:
+
+```bash
+pip install "flask[async]"
+```
+
+---
+
+## 🚀 How to Build and Run the App
+
+1. build
+
+```bash
+npx expo export
+```
+
+2. start
+
+```bash
+ npx serve dist
+```
+
+---
+
 ## 📂 Project Main Structure
 
 ```markdown
@@ -56,75 +177,6 @@ Here are the primary colors used:
   - `gray300`: `#9E9E9E`
   - `gray400`: `#666`
   - `gray500`: `#424242`
-
----
-
-## 🚀 How to Run the App
-
-1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Start the Expo server:
-
-   ```bash
-   npx expo start -c
-   ```
-
-4. Open the app in the Expo Go app (available on iOS and Android) or in an emulator.
-
----
-
-## 🚀 How to Build and Run the App
-
-1. build
-
-```bash
-npx expo export
-```
-
-2. start
-
-```bash
- npx serve dist
-```
-
----
-
-## 📚 Backend Setup
-
-The backend is implemented in Python and uses Flask. To set up and run the backend:
-
-1. Navigate to the `backend` directory:
-
-   ```bash
-   cd backend
-   ```
-
-2. Install required dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Run the server:
-   ```bash
-   python app.py
-   ```
-   or
-   ```bash
-   flask run
-   ```
-
-The server will run on `http://127.0.0.1:5000` by default.
 
 ---
 

@@ -449,6 +449,32 @@ async def start_measurement():
         print(e)
         return jsonify({"success": False, "error": str(e)})
 
+@app.route('/pressureImage', methods=['GET'])
+def get_pressure_image():
+    """
+    Returns the pressure image for a given userId.
+    """
+    # userId를 쿼리 파라미터에서 가져옴
+    user_id = request.args.get('userId')
+    if not user_id:
+        return jsonify({"error": "userId is required"}), 400
+
+    # 파일 경로 설정
+    file_name = f"pressure_{user_id}.png"
+    file_path = os.path.join(app.config['BASE_PATH'], "pressure", file_name)
+    print("file_path: ", file_path)
+
+    # 파일 존재 여부 확인
+    if not os.path.exists(file_path):
+        return jsonify({"error": f"File not found for userId {user_id}"}), 404
+
+    # Convert image to Base64
+    with open(file_path, "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+    # 파일 전송
+    # return send_from_directory(os.path.join(app.config['BASE_PATH'], "pressure", file_name))
+    return jsonify({"image": encoded_image})
 
 # if __name__ == '__main__':  
 #     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
