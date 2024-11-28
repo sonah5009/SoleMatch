@@ -5,7 +5,7 @@ import Slider from "react-slick";
 import UserPicker from "../../components/UserPicker";
 // import PagerView from "react-native-pager-view";
 
-export default function RecommendShoes() {
+export default function recommendShoes() {
   const [userName, setUserName] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
