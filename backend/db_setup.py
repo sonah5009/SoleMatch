@@ -2,7 +2,7 @@ import json
 import sqlite3
 
 def create_database():
-    connection = sqlite3.connect('backend/user_data.db')
+    connection = sqlite3.connect('/home/sonah5009/mysite/user_data.db')
     cursor = connection.cursor()
     
     # Create table
