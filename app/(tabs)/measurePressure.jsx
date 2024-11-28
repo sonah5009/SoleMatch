@@ -48,13 +48,18 @@ export default function measurePressure() {
       if (response.ok) {
         setType("end");
       } else {
-        throw new Error("Measurement failed");
+        setType("fail");
+        console.log(type);
+        throw new Error("측정에 실패했어요. 발 사이즈만 측정하러 갈까요?");
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Could not connect to the backend.");
-      setType("error");
+      Alert.alert("Error", "발 압력센서 연결이 불안정해요. 🥲");
+      setType("fail");
     }
+  };
+  const retryMeasrement = async () => {
+    setType("start");
   };
 
   return (
@@ -69,17 +74,27 @@ export default function measurePressure() {
             ? "압력 측정중..."
             : type === "end"
             ? "발 압력 분포 분석 완료 👍"
-            : "😢 압력 측정에 실패했어요. 껐다가 다시 켜주세요."
+            : type === "fail"
+            ? "😢 압력 측정에 실패했어요. 껐다가 다시 켜주세요."
+            : null
         }
         buttonTitle={
           type === "start"
             ? "압력측정 시작하기"
             : type === "end"
             ? "발 사이즈 재러가기 ﹥"
+            : "다시 재기"
+        }
+        // ActionButton
+        buttonHandler={
+          type === "start"
+            ? startMeasurement
+            : type === "fail"
+            ? retryMeasrement
             : null
         }
-        buttonHandler={type === "start" ? startMeasurement : null}
-        buttonLink={type === "end" ? "/captureFootSize" : null}
+        // NavigateButton
+        buttonLink={type === "end" ? "/captureFootSize" : "/captureFootSize"}
       />
       {type == "end" ? (
         <ActionButton
