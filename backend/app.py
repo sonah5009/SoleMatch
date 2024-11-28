@@ -370,7 +370,7 @@ def analyze_size(file=None):
                 class_value = "wide"
         if fileName.split('_')[1]=='left.jpg':
             print("HIHI")
-            cursor.execute('UPDATE users SET class = (?), leftFootSize = (?), leftWidth = (?),  WHERE userName = (?)', (class_value, length_mm, width_mm, user))
+            cursor.execute('UPDATE users SET class = (?), leftFootSize = (?), leftWidth = (?)  WHERE userName = (?)', (class_value, length_mm, width_mm, user))
 
         else:
             cursor.execute('UPDATE users SET rightFootSize = (?), rightWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
