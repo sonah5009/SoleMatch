@@ -48,13 +48,14 @@ export default function captureFootSize() {
   const cameraRef = useRef(null);
   
   const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
- 
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         console.log("Fetching users...");
         console.log(`${BASE_URL}/users`);
+        
         const response = await fetch(`${BASE_URL}/users`);
         
         const data = await response.json();
@@ -100,6 +101,7 @@ export default function captureFootSize() {
       type: 'image/jpeg',
       name: filename
     }); // The third parameter specifies the filename
+    console.log(filename);
     formData.append("fileName", filename); // The third parameter specifies the filename
     formData.append("user", selectedUser); // The third parameter specifies the filename
     
@@ -131,7 +133,7 @@ export default function captureFootSize() {
         }
       } else {
         alert("다시 시도해주세요.");
-
+        
       }
     } catch (error) {
       console.error("Error uploading image:", error);
