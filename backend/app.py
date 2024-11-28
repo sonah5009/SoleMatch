@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, send_from_directory, send_file, jsonify, make_response
+from flask import Flask, request, jsonify, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import os
@@ -8,7 +8,6 @@ from measure import async_measure_pressure
 from scipy.spatial import distance as dist
 from imutils import contours
 import numpy as np
-# import argparse
 import imutils
 import cv2
 import base64
