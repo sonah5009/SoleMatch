@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Linking } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import PagerView from "react-native-pager-view";
+import { View, Text, StyleSheet, Image, Linking, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Slider from "react-slick";
 import UserPicker from "../../components/UserPicker";
+// import PagerView from "react-native-pager-view";
 
 export default function RecommendShoes() {
   const [userName, setUserName] = useState(null);
@@ -58,6 +58,16 @@ export default function RecommendShoes() {
     }
   }, [selectedUser]);
 
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
+  const isWeb = Platform.OS === "web";
+
   return (
     <View style={styles.container}>
       <UserPicker
@@ -68,27 +78,55 @@ export default function RecommendShoes() {
         defaultTitle={`${userName}의 추천 신발 👟`}
         secondTitle="다른 사람의 추천 신발 구경하기"
       />
-      <PagerView style={styles.container} initialPage={0}>
-        {shoes.length > 0 ? (
-          shoes.map((shoe, index) => (
-            <View style={styles.page} key={index}>
-              <Text style={styles.shoeName}>{shoe.name}</Text>
-              <Text style={styles.shoeDetails}>Size: {shoe.size}</Text>
-              <Image source={shoeImages[shoe.id]} style={styles.shoeImage} />
-              <Text
-                style={styles.shoeLink}
-                onPress={() => Linking.openURL(shoe.site)}
-              >
-                Visit site
-              </Text>
+      {isWeb ? (
+        <Slider {...settings}>
+          {shoes.length > 0 ? (
+            shoes.map((shoe, index) => (
+              <div style={styles.page} key={index}>
+                <h2 style={styles.shoeName}>{shoe.name}</h2>
+                <p style={styles.shoeDetails}>Size: {shoe.size}</p>
+                <img
+                  src={shoeImages[shoe.id]}
+                  alt={shoe.name}
+                  style={styles.shoeImage}
+                />
+                <button
+                  style={styles.shoeLink}
+                  onClick={() => Linking.openURL(shoe.site)}
+                >
+                  Visit site
+                </button>
+              </div>
+            ))
+          ) : (
+            <div style={styles.page}>
+              <p>음... 추천할만한 신발이 없네요 🥲</p>
+            </div>
+          )}
+        </Slider>
+      ) : (
+        <PagerView style={styles.container} initialPage={0}>
+          {shoes.length > 0 ? (
+            shoes.map((shoe, index) => (
+              <View style={styles.page} key={index}>
+                <Text style={styles.shoeName}>{shoe.name}</Text>
+                <Text style={styles.shoeDetails}>Size: {shoe.size}</Text>
+                <Image source={shoeImages[shoe.id]} style={styles.shoeImage} />
+                <Text
+                  style={styles.shoeLink}
+                  onPress={() => Linking.openURL(shoe.site)}
+                >
+                  Visit site
+                </Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.page}>
+              <Text>음... 추천할만한 신발이 없네요 🥲</Text>
             </View>
-          ))
-        ) : (
-          <View style={styles.page}>
-            <Text>음... 추천할만한 신발이 없네요 🥲</Text>
-          </View>
-        )}
-      </PagerView>
+          )}
+        </PagerView>
+      )}
     </View>
   );
 }
