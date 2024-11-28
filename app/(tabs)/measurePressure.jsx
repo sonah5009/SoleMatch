@@ -8,7 +8,7 @@ import ActionButton from "../../components/ActionButton";
 
 const window = Dimensions.get("window");
 // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const getUserId = async () => {
   if (Platform.OS === "web") {
     return localStorage.getItem("userId");

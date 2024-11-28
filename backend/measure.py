@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 # 환경 변수 로드
 load_dotenv()
-BASE_PATH = os.environ.get('BACKEND_PATH')
+BASE_PATH = "/home/sonah5009/mysite"
 
 # 시리얼 포트 설정
 arduino_port = "/dev/tty.usbserial-110"  # 환경에 따라 조정

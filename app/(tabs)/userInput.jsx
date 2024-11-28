@@ -8,7 +8,7 @@ import NavigateButton from "@/components/NavigateButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function userInput() {
   // console.log("**userInput page**");

@@ -11,7 +11,7 @@ export default function RecommendShoes() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [shoes, setShoes] = useState([]);
 
-  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_LOCAL_URL;
+  const BASE_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
