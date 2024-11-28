@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, send_from_directory, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import os
 import sqlite3
-from measure import async_measure_pressure
 from scipy.spatial import distance as dist
 from imutils import contours
 import numpy as np
@@ -21,17 +20,28 @@ EXPO_PUBLIC_BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL')
 print("LOCAL_IP_ADDRESS", LOCAL_IP_ADDRESS)
 
 app = Flask(__name__)
+
 # CORS 설정
+# Validate environment variables
+if not LOCAL_IP_ADDRESS:
+    print("Warning: LOCAL_IP_ADDRESS is not set")
+if not EXPO_PUBLIC_BACKEND_URL:
+    print("Warning: EXPO_PUBLIC_BACKEND_URL is not set")
+
+# Filter out None values from origins
+origins = [
+    "http://localhost:8081",
+    EXPO_PUBLIC_BACKEND_URL,
+    f"http://{LOCAL_IP_ADDRESS}:8081" if LOCAL_IP_ADDRESS else None
+]
+origins = [origin for origin in origins if origin]  # Remove None values
+
 CORS(
     app,
     resources={
         r"/*": {
-            "origins": [
-                "http://localhost:8081",
-                EXPO_PUBLIC_BACKEND_URL,
-                f"http://{LOCAL_IP_ADDRESS}:8081"
-            ],
-            "supports_credentials": True,  # 쿠키나 인증 헤더 허용
+            "origins": origins,
+            "supports_credentials": True,
         }
     },
 )
@@ -433,7 +443,7 @@ def register_user():
 
 
 @app.route('/api/pressure', methods=['POST'])
-async def start_measurement():
+def start_measurement():
     try:
         # data = request.json
         data = request.get_json()
@@ -443,7 +453,8 @@ async def start_measurement():
             return jsonify({"success": False, "error": "User ID not provided"}), 400
         
         # 비동기로 측정 시작
-        avg_array, image_path = await async_measure_pressure(user_id, 10)
+        # avg_array, image_path = await async_measure_pressure(user_id, 10)
+        image_path = "./idk.png" # 가짜 데이터
         return jsonify({"success": True, "image_path": image_path})
     except Exception as e:
         print(e)
