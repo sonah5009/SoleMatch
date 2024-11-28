@@ -19,12 +19,15 @@ export default function PressureGuide({
   buttonTitle,
   buttonHandler,
   buttonLink,
+  imageUri,
 }) {
   return (
     <>
       <View style={styles.main}>
         {type === "ing" ? (
           <ActivityIndicator size="large" color={Colors.green.green100} />
+        ) : type === "end" && imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.image} />
         ) : (
           <Image
             source={require("../assets/images/pressure-both.png")}
