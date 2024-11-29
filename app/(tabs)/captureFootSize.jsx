@@ -140,7 +140,7 @@ export default function captureFootSize() {
       }
     } catch (error) {
       console.error("Failed to analyze size:", error);
-      alert("발을 분석할 수 가 없어요. 다시 찍어주세요.");
+      alert("발을 분석할 수가 없어요. 다시 찍어주세요.");
     } finally {
       setIsLoading(false); // 로딩 종료
     }
