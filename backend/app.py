@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import os
 import sqlite3
-# from measure import async_measure_pressure
+from measure import async_measure_pressure
 from scipy.spatial import distance as dist
 from imutils import contours
 import numpy as np
@@ -406,49 +406,49 @@ def register_user():
         return jsonify({"error": str(e)}), 500
 
 
-# @app.route('/api/pressure', methods=['POST'])
-# async def start_measurement():
-#     try:
-#         # data = request.json
-#         data = request.get_json()
-#         user_id = data.get("userId")
+@app.route('/api/pressure', methods=['POST'])
+async def start_measurement():
+    try:
+        # data = request.json
+        data = request.get_json()
+        user_id = data.get("userId")
 
-#         if not user_id:
-#             return jsonify({"success": False, "error": "User ID not provided"}), 400
+        if not user_id:
+            return jsonify({"success": False, "error": "User ID not provided"}), 400
         
-#         # 비동기로 측정 시작
-#         avg_array, image_path = await async_measure_pressure(user_id, 10)
-#         return jsonify({"success": True, "image_path": image_path})
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"success": False, "error": str(e)})
+        # 비동기로 측정 시작
+        avg_array, image_path = await async_measure_pressure(user_id, 10)
+        return jsonify({"success": True, "image_path": image_path})
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "error": str(e)})
 
-# @app.route('/pressureImage', methods=['GET'])
-# def get_pressure_image():
-#     """
-#     Returns the pressure image for a given userId.
-#     """
-#     # userId를 쿼리 파라미터에서 가져옴
-#     user_id = request.args.get('userId')
-#     if not user_id:
-#         return jsonify({"error": "userId is required"}), 400
+@app.route('/pressureImage', methods=['GET'])
+def get_pressure_image():
+    """
+    Returns the pressure image for a given userId.
+    """
+    # userId를 쿼리 파라미터에서 가져옴
+    user_id = request.args.get('userId')
+    if not user_id:
+        return jsonify({"error": "userId is required"}), 400
 
-#     # 파일 경로 설정
-#     file_name = f"pressure_{user_id}.png"
-#     file_path = os.path.join(app.config['BASE_PATH'], "pressure", file_name)
-#     print("file_path: ", file_path)
+    # 파일 경로 설정
+    file_name = f"pressure_{user_id}.png"
+    file_path = os.path.join(app.config['BASE_PATH'], "pressure", file_name)
+    print("file_path: ", file_path)
 
-#     # 파일 존재 여부 확인
-#     if not os.path.exists(file_path):
-#         return jsonify({"error": f"File not found for userId {user_id}"}), 404
+    # 파일 존재 여부 확인
+    if not os.path.exists(file_path):
+        return jsonify({"error": f"File not found for userId {user_id}"}), 404
 
-#     # Convert image to Base64
-#     with open(file_path, "rb") as image_file:
-#         encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+    # Convert image to Base64
+    with open(file_path, "rb") as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-#     # 파일 전송
-#     # return send_from_directory(os.path.join(app.config['BASE_PATH'], "pressure", file_name))
-#     return jsonify({"image": encoded_image})
+    # 파일 전송
+    # return send_from_directory(os.path.join(app.config['BASE_PATH'], "pressure", file_name))
+    return jsonify({"image": encoded_image})
 
 if __name__ == '__main__':  
     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
