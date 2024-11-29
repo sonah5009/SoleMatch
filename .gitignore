@@ -27,6 +27,7 @@ expo-env.d.ts
 .env
 # @end expo-cli
 # Local Netlify folder
+netlify
 .netlify
 *.venv
 *venv

@@ -200,8 +200,8 @@ Here are the primary colors used:
 ## 🤝 Contributors
 
 - **Team Lead**: Sun-a Choe (최선아) - App Design & Development, Sole Pressure Distribution Visualization
-- **Software Developer**: Chaeri Kim (김채리) - App Features & Relative Foot Size Measurement Development
-- **Hardware Analyst**: Ju-won Kwon (권주원), Jun-hong Bae (배준홍) - Sole Pressure Sensor & Arduino Connection
+- **Software Developer**: Chaeri Kim (김채리) - App Features & CV Based Relative Foot Size Measurement Development
+- **Hardware Analyst**: Ju-won Kwon (권주원), Jun-hong Bae (배준홍) - Sole Pressure Sensor <-> Arduino Connection
 
 ---
 
