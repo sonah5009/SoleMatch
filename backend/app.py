@@ -1,10 +1,11 @@
+import requests
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import os
 import sqlite3
-from measure import async_measure_pressure
+# from measure import async_measure_pressure
 from scipy.spatial import distance as dist
 from imutils import contours
 import numpy as np
@@ -44,6 +45,7 @@ UPLOAD_FOLDER = os.path.join(BASE_PATH, "uploads")
 # Set the upload and base paths in app config
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['BASE_PATH'] = BASE_PATH
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
 @app.route('/')
 def hello_world():
@@ -191,25 +193,23 @@ def imwrite(filename, img, params=None):
 
 @app.route('/analyze_size', methods=['POST'])
 def analyze_size(file=None):
-
-    try :
+    try:
         file = request.files['file']
-        if file==None:
-            return   jsonify({"error": "No file"}), 400
+        if file is None:
+            return jsonify({"error": "No file"}), 400
+
         print("file: ", file)
         fileName = request.form.get('fileName')
         user = request.form.get('user')
 
-        # temp_path = os.path.join('./uploads', fileName)
         temp_path = os.path.join(app.config['BASE_PATH'], "temp", fileName)
         print("temp_path: ", temp_path)
         file.save(temp_path)
 
         width_of_leftmost_object = 1.06  # Set your width in inches here
 
-        # Load and process the image
+        # Load and process the image for OpenCV measurement
         image = imread(temp_path)
-        print("image: ", image)
         if image is None:
             return jsonify({"error": "Image not found"}), 400
 
@@ -223,165 +223,139 @@ def analyze_size(file=None):
         (cnts, _) = contours.sort_contours(cnts)
         pixelsPerMetric = None
 
-        # Process contours (similar to your existing logic)
+        # OpenCV measurement for the first element
         for c in cnts:
-            # if the contour is not sufficiently large, ignore it
-            if cv2.contourArea(c) < 3000:
+            if cv2.contourArea(c) < 3000:  # Adjust the threshold if needed
                 continue
 
-            # approximate the contour
             peri = cv2.arcLength(c, True)
-            approx = cv2.approxPolyDP(c, 0.001 * peri, True)
-            approx2 = cv2.approxPolyDP(c, 0.02 * peri, True)
-
-            # draw the approximated polygon
-            orig = image.copy()
-            cv2.drawContours(orig, [approx], -1, (0, 255, 0), 2)
+            approx = cv2.approxPolyDP(c, 0.02 * peri, True)
             rect = cv2.minAreaRect(c)
-
             min_rect_width = min(rect[1])  # smaller dimension
+            max_rect_height = max(rect[1])  # larger dimension
 
-            box = cv2.boxPoints(rect)  # obtain 4 points of the bounding box
-            box2 = np.int64(box)  # convert to integer values
-            cv2.drawContours(orig, [box2], -1, (0, 255, 0), 2)
-
-            (tl, tr, br, bl) = box
-            (tltrX, tltrY) = midpoint(tl, tr)
-            (blbrX, blbrY) = midpoint(bl, br)
-            (tlblX, tlblY) = midpoint(tl, bl)
-            (trbrX, trbrY) = midpoint(tr, br)
-
-            # draw the midpoints on the image
-            cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
-
-            # draw lines between the midpoints
-            cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)), (255, 0, 255), 2)
-            cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)), (255, 0, 255), 2)
-
-            # compute the Euclidean distance between the midpoints
-            dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
-            dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
-
-            # if the pixels per metric has not been initialized, then compute it
+            # Compute pixels per metric
             if pixelsPerMetric is None:
-                pixelsPerMetric = dB / width_of_leftmost_object
+                pixelsPerMetric = min_rect_width / width_of_leftmost_object
 
-            # compute the size of the object in millimeters instead of inches
-            dimA = dA / pixelsPerMetric * 25.4  # Convert inches to millimeters
-            dimB = dB / pixelsPerMetric * 25.4  # Convert inches to millimeters
+            top_left = (int(rect[0][0] - rect[1][0] / 2), int(rect[0][1] - rect[1][1] / 2))
+            bottom_right = (int(rect[0][0] + rect[1][0] / 2), int(rect[0][1] + rect[1][1] / 2))
 
-            # draw the object sizes on the image in millimeters
-            cv2.putText(orig, "{:.1f}mm".format(dimA), (int(tltrX - 15), int(tltrY - 10)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
-            cv2.putText(orig, "{:.1f}mm".format(dimB), (int(trbrX + 10), int(trbrY)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
+            # Draw the rectangle
+            cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 2)
+            # Measure dimensions in mm
+            width_mm = min_rect_width / pixelsPerMetric * 25.4
+            length_mm = max_rect_height / pixelsPerMetric * 25.4
 
-            # find the bounding box of the approximated contour (optional, if needed)
-            x, y, w, h = cv2.boundingRect(approx2)
-            cv2.rectangle(orig, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            break  
 
-            max_rect_height = h  # larger dimension
+        with open(temp_path, "rb") as image_file:
+            roboflow_response = requests.post(
+                "https://detect.roboflow.com/feetproj/1?api_key=yFIRwtU82s8LdOd9z3dt",
+                files={"file": image_file},
+            )
 
-            # compute midpoints manually based on the bounding box coordinates
-            (tltrX, tltrY) = (x + w / 2, y)
-            (blbrX, blbrY) = (x + w / 2, y + h)
-            (tlblX, tlblY) = (x, y + h / 2)
-            (trbrX, trbrY) = (x + w, y + h / 2)
+        roboflow_data = roboflow_response.json()
+        print("up til here", roboflow_data)
+        if "predictions" in roboflow_data and len(roboflow_data["predictions"]) > 0:
+            data = roboflow_data["predictions"][0]
+            x, y, w, h = x, y, w, h = data["x"], data["y"], data["width"], data["height"]
 
-            # draw the midpoints on the image
-            cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
+            if "predictions" in roboflow_data and len(roboflow_data["predictions"]) > 0:
+                data = roboflow_data["predictions"][0]
+                x, y= data["x"], data["y"]
 
-            # draw lines between the midpoints
-            cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)), (255, 0, 255), 2)
-            cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)), (255, 0, 255), 2)
+                w = min(data["width"],data["height"])
+                h = max(data["width"],data["height"])
 
-            # compute the Euclidean distance between the midpoints
-            dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
-            dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
+                # Calculate bounding box corners and convert to integers
+                top_left = (int(x - w / 2), int(y - h / 2))
+                top_right = (int(x + w / 2), int(y - h / 2))
+                bottom_left = (int(x - w / 2), int(y + h / 2))
+                bottom_right = (int(x + w / 2), int(y + h / 2))
 
-            # if the pixels per metric has not been initialized, then compute it
-            if pixelsPerMetric is None:
-                pixelsPerMetric = dB / width_of_leftmost_object
+                print("Top Left:", top_left)
+                print("Top Right:", top_right)
+                print("Bottom Left:", bottom_left)
+                print("Bottom Right:", bottom_right)
 
-            # compute the size of the object in millimeters instead of inches
-            dimA = dA / pixelsPerMetric * 25.4  # Convert inches to millimeters
-            dimB = dB / pixelsPerMetric * 25.4  # Convert inches to millimeters
+                # Draw bounding box lines
+                cv2.line(image, top_left, top_right, (0, 0, 255), 2)  # Top edge
+                cv2.line(image, top_right, bottom_right, (0, 0, 255), 2)  # Right edge
+                cv2.line(image, bottom_right, bottom_left, (0, 0, 255), 2)  # Bottom edge
+                cv2.line(image, bottom_left, top_left, (0, 0, 255), 2)  # Left edge
 
-            # draw the object sizes on the image in millimeters
-            cv2.putText(orig, "{:.1f}mm".format(dimA), (int(tltrX - 15), int(tltrY - 10)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
-            cv2.putText(orig, "{:.1f}mm".format(dimB), (int(trbrX + 10), int(trbrY)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
+            # 3. 실제 크기 계산
 
+            print(pixelsPerMetric)
+            actual_width = w / pixelsPerMetric  * 25.4
+            actual_height = h / pixelsPerMetric  * 25.4
+            
+            print(f"Actual Width: {actual_width:.2f} mm")
+            print(f"Actual Height: {actual_height:.2f} mm")
+        else:
+            return jsonify({"error": "Roboflow measurement failed"}), 400
 
-            # output_path = f"./analyzed/{fileName}"
-            output_path = os.path.join(app.config['BASE_PATH'], "analyzed", fileName)
-            imwrite(output_path, orig)
+        print("up til here")
 
-        width_mm = min_rect_width / pixelsPerMetric * 25.4
-        length_mm = max_rect_height / pixelsPerMetric * 25.4
-
-        # Convert image to Base64
-        with open(output_path, "rb") as image_file:
-            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-
-
-        # Return JSON with embedded Base64 image
-        response_data = {
-            "width": width_mm,
-            "length": length_mm,
-            "image": encoded_image  # Base64 encoded string
-        }
-        db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
-        connection = sqlite3.connect(db_path)
-        cursor = connection.cursor()
-        
-        width_ratio = (width_mm / length_mm) * 100
-
-        # Classify based on length and width ratio
+        width_ratio = (actual_width / actual_height) * 100
 
         class_value = ""
-        if length_mm <= 240:
+        if actual_height <= 240:
             if width_ratio <= 35:
                 class_value = "narrow"
             elif 35 < width_ratio <= 38:
                 class_value = "medium"
             elif 38 < width_ratio:
                 class_value = "wide"
-        elif 250 <= length_mm <= 260:
+        elif 250 <= actual_height <= 260:
             if width_ratio <= 34:
                 class_value = "narrow"
             elif 34 < width_ratio <= 37:
                 class_value = "medium"
             elif 37 < width_ratio:
                 class_value = "wide"
-        elif 270 <= length_mm:
+        elif 270 <= actual_height:
             if width_ratio <= 33:
                 class_value = "narrow"
             elif 33 < width_ratio <= 36:
                 class_value = "medium"
             else:
                 class_value = "wide"
-        if fileName.split('_')[1]=='left.jpg':
-            print("HIHI")
-            cursor.execute('UPDATE users SET class = (?), leftFootSize = (?), leftWidth = (?)  WHERE userName = (?)', (class_value, length_mm, width_mm, user))
 
+        # Save to database (assuming fileName identifies left/right foot)
+        db_path = os.path.join(app.config['BASE_PATH'], 'user_data.db')
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        if fileName.split('_')[1] == 'left.jpg':
+            cursor.execute(
+                'UPDATE users SET class = (?), leftFootSize = (?), leftWidth = (?)  WHERE userName = (?)',
+                (class_value, actual_height, actual_width, user)
+            )
         else:
-            cursor.execute('UPDATE users SET rightFootSize = (?), rightWidth = (?) WHERE userName = (?)', (length_mm, width_mm, user))
-            
+            cursor.execute(
+                'UPDATE users SET rightFootSize = (?), rightWidth = (?) WHERE userName = (?)',
+                (actual_height, actual_width, user)
+            )
+
         connection.commit()
         connection.close()
+
+        _, buffer = cv2.imencode('.jpg', image)  # Encode image to JPG format
+        image_bytes = buffer.tobytes()  # Convert the image buffer to bytes
+        encoded_image = base64.b64encode(image_bytes).decode('utf-8') 
         
-        return jsonify(response_data)
+        return jsonify({
+            "width": actual_width,
+            "length": actual_height,
+            "image": encoded_image
+        })
+
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    
+        return jsonify({"error": "Internal server error"}), 500
+
 
 
 @app.route('/uploads/<filename>')
@@ -432,49 +406,49 @@ def register_user():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/pressure', methods=['POST'])
-async def start_measurement():
-    try:
-        # data = request.json
-        data = request.get_json()
-        user_id = data.get("userId")
+# @app.route('/api/pressure', methods=['POST'])
+# async def start_measurement():
+#     try:
+#         # data = request.json
+#         data = request.get_json()
+#         user_id = data.get("userId")
 
-        if not user_id:
-            return jsonify({"success": False, "error": "User ID not provided"}), 400
+#         if not user_id:
+#             return jsonify({"success": False, "error": "User ID not provided"}), 400
         
-        # 비동기로 측정 시작
-        avg_array, image_path = await async_measure_pressure(user_id, 10)
-        return jsonify({"success": True, "image_path": image_path})
-    except Exception as e:
-        print(e)
-        return jsonify({"success": False, "error": str(e)})
+#         # 비동기로 측정 시작
+#         avg_array, image_path = await async_measure_pressure(user_id, 10)
+#         return jsonify({"success": True, "image_path": image_path})
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"success": False, "error": str(e)})
 
-@app.route('/pressureImage', methods=['GET'])
-def get_pressure_image():
-    """
-    Returns the pressure image for a given userId.
-    """
-    # userId를 쿼리 파라미터에서 가져옴
-    user_id = request.args.get('userId')
-    if not user_id:
-        return jsonify({"error": "userId is required"}), 400
+# @app.route('/pressureImage', methods=['GET'])
+# def get_pressure_image():
+#     """
+#     Returns the pressure image for a given userId.
+#     """
+#     # userId를 쿼리 파라미터에서 가져옴
+#     user_id = request.args.get('userId')
+#     if not user_id:
+#         return jsonify({"error": "userId is required"}), 400
 
-    # 파일 경로 설정
-    file_name = f"pressure_{user_id}.png"
-    file_path = os.path.join(app.config['BASE_PATH'], "pressure", file_name)
-    print("file_path: ", file_path)
+#     # 파일 경로 설정
+#     file_name = f"pressure_{user_id}.png"
+#     file_path = os.path.join(app.config['BASE_PATH'], "pressure", file_name)
+#     print("file_path: ", file_path)
 
-    # 파일 존재 여부 확인
-    if not os.path.exists(file_path):
-        return jsonify({"error": f"File not found for userId {user_id}"}), 404
+#     # 파일 존재 여부 확인
+#     if not os.path.exists(file_path):
+#         return jsonify({"error": f"File not found for userId {user_id}"}), 404
 
-    # Convert image to Base64
-    with open(file_path, "rb") as image_file:
-        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+#     # Convert image to Base64
+#     with open(file_path, "rb") as image_file:
+#         encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-    # 파일 전송
-    # return send_from_directory(os.path.join(app.config['BASE_PATH'], "pressure", file_name))
-    return jsonify({"image": encoded_image})
+#     # 파일 전송
+#     # return send_from_directory(os.path.join(app.config['BASE_PATH'], "pressure", file_name))
+#     return jsonify({"image": encoded_image})
 
 if __name__ == '__main__':  
     app.run(debug=True, host=LOCAL_IP_ADDRESS, port=5000)
